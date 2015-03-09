@@ -1,0 +1,210 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+#GET     /                           	controllers.Application.index
+GET     /room/chat                      controllers.Application.chat(userId : String)
+GET		/room/users/pic					controllers.Application.getUsersImg
+GET		/room/users						controllers.Application.getUsers
+GET		/room/gcm/register				controllers.Application.register(userId: String , gcmId : String)
+GET     /room/notifyconf				controllers.Application.setNotification(userId : String, womenCome: Boolean ?= false, menCome: Boolean ?= false, womenOver: Int ?= -1, menOver: Int ?= -1 )
+GET     /room/notifyreset				controllers.Application.resetNotification(userId : String)
+
+###############################################################################################
+###############################################################################################
+#################################靜悄悄#########################################################
+###############################################################################################
+###############################################################################################
+GET		/leavemsg						controllers.SChannel.talk( msg : String, uid : String)
+GET		/index							controllers.SChannel.index()
+GET		/h/leavemsg						controllers.SChannel.talkhtml( msg : String ?= "", uid : String ?= "")
+POST  	/schannel/img/upload 			controllers.SChannel.uploadImage(msg : String, uid : String)
+GET 	/schannel/img 					controllers.SChannel.getImg(id : String)
+
+###############################################################################################
+###############################################################################################
+#################################Line分類交友###################################################
+###############################################################################################
+###############################################################################################
+POST	/linefriend/account/create		controllers.line.AccountApplication.createProfile(uid : String, nickname : String ?= "", lineId: String, interests: String ?= "", places : String ?= "", careers: String ?= "", olds: String ?= "", s : String, constellations : String ?= "", motions : String ?= "")
+
+GET 	/linefriend/account/image	 	controllers.line.AccountApplication.getAccountImg(uid : String)
+GET 	/linefriend/account/delete	 	controllers.line.AccountApplication.deleteprofile(uid : String)
+
+GET 	/linefriend/account/hidesetting controllers.line.AccountApplication.hideProfile(uid : String, isHide: Boolean)
+
+GET 	/linefriend/gcm/register		controllers.line.AccountApplication.register(uid: String , gcmId : String)
+
+GET 	/linefriend/gcm/unregister		controllers.line.AccountApplication.unRegister(uid:String)
+
+###############################################################################################
+GET 	/linefriend/account/search		controllers.line.SearchApplication.search(categoryType : String, categoryId : String, page: Int ?= 0, s : String ?= "", uid : String ?= "")
+
+GET 	/linefriend/account/count	 	controllers.line.SearchApplication.searchCategoryCount(categoryType : String, s : String, uid : String ?= "")
+
+
+###############################################################################################
+POST	/linefriend/post/create  		controllers.line.PostApplication.createPost(uid : String, lid : String, data : String, categoryType : String, categoryId : String, withPic : Boolean)
+GET 	/linefriend/post/searchall 		controllers.line.PostApplication.searchAllPost(page: Int ?= 0, uid : String ?= "")
+GET 	/linefriend/post/search 		controllers.line.PostApplication.searchPost(categoryType : String, categoryId : String, page: Int ?= 0, uid : String ?= "")
+GET 	/linefriend/reply/create 		controllers.line.PostApplication.createReplyPost(uid : String, lid : String, data : String, pid : String)
+GET 	/linefriend/reply/search 		controllers.line.PostApplication.searchReplyPost(pid : String, uid : String ?= "")
+GET 	/linefriend/post/image	 	controllers.line.PostApplication.getPostImg(pid : String)
+GET 	/linefriend/post/del 		controllers.line.PostApplication.delPost(uid : String, categoryType : String, categoryId : String ?= "", pid : String)
+GET 	/linefriend/disc/create 		controllers.line.DiscussApplication.addDiscussRoom(uid : String, rid : String ?= "", name : String, desc : String ?= "", num : String ?= "0")
+GET 	/linefriend/disc/searchall 		controllers.line.DiscussApplication.getAllDiscussRooms(uid : String)
+
+
+
+###############################################################################################
+GET 	/linefriend/new_msg/leave 	controllers.line.MessageApplication.putNewMsg(fromUid : String, fromLid : String, toUid: String, toLid: String, msg : String)
+GET 	/linefriend/new_msg/del 	controllers.line.MessageApplication.delNewMsg(uid : String, toUid : String)
+GET 	/linefriend/new_msg/get 	controllers.line.MessageApplication.getNewMsg(uid : String, toUid : String)
+GET 	/linefriend/new_msg/users 	controllers.line.MessageApplication.getNewMsgUsers(uid : String)
+GET 	/linefriend/new_msg/notifiy 	controllers.line.MessageApplication.getNofiticationUsers(uid : String)
+GET 	/linefriend/msg/del 		controllers.line.MessageApplication.delAllMsg(uid : String)
+GET 	/linefriend/msg/get 		controllers.line.MessageApplication.getMsg(uid : String)
+GET 	/linefriend/msg/leave 		controllers.line.MessageApplication.putNewMsg(fromUid : String, fromLid : String, toUid: String, toLid: String, msg : String)
+GET 	/linefriend/msg/send/all 	controllers.line.MessageApplication.sendAll(uid : String, msg : String)
+GET 	/linefriend/msg/send/one 	controllers.line.MessageApplication.sendOne(uid : String, toUid: String, msg : String)
+GET 	/linefriend/admin_msg/get 		controllers.line.MessageApplication.getAdminMsg(uid : String, ver : String)
+
+###############################################################################################
+GET 	/linefriend/trace/add 	controllers.line.TraceApplication.addTraceUser(uid : String, toUid: String)
+GET 	/linefriend/trace/del 	controllers.line.TraceApplication.delTraceUser(uid: String, toUid : String )
+GET 	/linefriend/trace/get 	controllers.line.TraceApplication.getTraceUser(uid : String)
+GET  	/linefriend/notify/get 		controllers.line.TraceApplication.getNotify(uid : String)
+GET 	/linefriend/account/online  	controllers.line.TraceApplication.getOnlineUser(uid : String)
+GET     /linefriend/chat/search  		controllers.line.TraceApplication.getChatroom
+GET     /linefriend/chat/image  		controllers.line.TraceApplication.getChatImg(id : String)
+
+GET 	/linefriend/account/hot  	controllers.line.TraceApplication.getHotUser(uid : String)
+GET 	/linefriend/account/active  	controllers.line.TraceApplication.getActiveUser(uid : String)
+GET 	/linefriend/account/today  	controllers.line.TraceApplication.getTodayUser(uid : String)
+
+
+###############################################################################################
+GET 	/linefriend/block/add 	controllers.line.BlockApplication.addBlockUser(uid : String, toUid: String)
+GET 	/linefriend/block/del 	controllers.line.BlockApplication.delBlockUser(uid: String, toUid : String )
+GET 	/linefriend/block/get 	controllers.line.BlockApplication.getBlockUser(uid : String)
+GET 	/linefriend/adminblock/add  controllers.line.BlockApplication.adminBlockUser(uid : String, rt : String ?= "2", lid : String ?= "")
+GET 	/linefriend/adminblock/search 	controllers.line.BlockApplication.isBlockAction(uid : String ?="", lid: String ?="")
+
+GET 	/linefriend/account/:uid	 	controllers.line.AccountApplication.getProfile(uid : String)
+GET 	/linefriend/block/report 	controllers.line.BlockApplication.reportBlock(uid : String, toUid: String, desc : String)
+GET 	/linefriend/block/allreport 	controllers.line.BlockApplication.getAllBlock(uid : String)
+
+###############################################################################################
+
+GET  	/linefriend/game/guess/reset 	controllers.line.GameApplication.resetGuessGame(uid : String)
+#GET  	/linefriend/game/guess/current 	controllers.line.GameApplication.getCurrentGuessGame(uid : String)
+GET  	/linefriend/game/guess/play 	controllers.line.GameApplication.playGuessGame(gid : String, uid : String, guess : String, desc : String, lid : String)
+GET  	/linefriend/game/guess/history 	controllers.line.GameApplication.getGuessGameHistory(uid : String, gid : String)
+GET  	/linefriend/game/guess/next_time 	controllers.line.GameApplication.getNextTime(uid : String, gid : String)
+GET  	/linefriend/game/guess/finish 	controllers.line.GameApplication.getGuessFinishGames(uid : String)
+
+GET  	/linefriend/game/all/current 	controllers.line.GameApplication1.getCurrentAllGame(uid : String)
+GET  	/linefriend/game/all/finish 	controllers.line.GameApplication1.getAllFinishGames(uid : String)
+GET  	/linefriend/game/all/next_time 	controllers.line.GameApplication.getNextTime(uid : String, gid : String)
+GET  	/linefriend/game/all/history 	controllers.line.GameApplication.getGuessGameHistory(uid : String, gid : String)
+GET  	/linefriend/game/ab/play 	controllers.line.GameApplication1.playABGame(gid : String, uid : String, guess : String, desc : String, lid : String)
+GET  	/linefriend/game/ab/reset 	controllers.line.GameApplication1.resetABGame(uid : String)
+
+GET  	/linefriend/game/ln/play 	controllers.line.GameApplication2.playLNGame(gid : String, uid : String, desc : String, lid : String)
+GET  	/linefriend/game/ln/reset 	controllers.line.GameApplication2.resetLNGame(uid : String)
+
+GET  	/linefriend/game/all/ncurrent 	controllers.line.GameApplication2.getCurrentAllGame(uid : String)
+GET  	/linefriend/game/all/nfinish 	controllers.line.GameApplication2.getAllFinishGames(uid : String)
+GET  	/linefriend/game/all/newcurrent 	controllers.line.GameApplication2.getCurrentAllGames(uid : String)
+
+###############################################################################################
+POST  	/linefriend/lucky/create 	controllers.line.LuckyApplication.createLucky(lkid : String)
+GET  	/linefriend/lucky/list 		controllers.line.LuckyApplication.getAllLucky(uid : String)
+GET  	/linefriend/lucky/nlist 		controllers.line.LuckyApplication.getAllNewLucky(uid : String)
+GET  	/linefriend/lucky/winner/create 	controllers.line.LuckyApplication.putWinnerLucky(uid : String, lkid: String, winCount : Long, desc : String)
+GET  	/linefriend/lucky/playgame 		controllers.line.LuckyApplication.playGame(uid : String, lkid : String, desc : String, lid : String)
+GET  	/linefriend/lucky/history/yourself 		controllers.line.LuckyApplication.getYourHistory(uid : String, lkid : String)
+GET  	/linefriend/lucky/history/all 		controllers.line.LuckyApplication.getAllHistory(uid : String, lkid : String)
+GET  	/linefriend/lucky/winner/list 		controllers.line.LuckyApplication.getAllWinner(uid : String)
+GET  	/linefriend/lucky/next_time 	controllers.line.LuckyApplication.getNextTime(uid : String, lkid : String)
+
+###############################################################################################
+POST  	/linefriend/gift/line/create 		controllers.line.GiftApplication.createLine()
+POST  	/linefriend/gift/money/create 		controllers.line.GiftApplication.createMoney()
+POST  	/linefriend/gift/bag/create 		controllers.line.GiftApplication1.createBag()
+POST  	/linefriend/gift/se/create 		controllers.line.GiftApplication2.createSe()
+
+GET  	/linefriend/gift/line/play 			controllers.line.GiftApplication.playLine(lgid : String, uid : String, lid : String)
+GET  	/linefriend/gift/money/play 		controllers.line.GiftApplication.playMoney(lgid : String, uid : String, lid : String)
+GET  	/linefriend/gift/bag/play 		controllers.line.GiftApplication1.playBag(lgid : String, uid : String, lid : String)
+GET  	/linefriend/gift/se/play 		controllers.line.GiftApplication2.playSe(lgid : String, uid : String, lid : String)
+
+GET  	/linefriend/gift/line/nplay 			controllers.line.GiftApplication.playNewLine(lgid : String, uid : String, lid : String)
+GET  	/linefriend/gift/money/nplay 		controllers.line.GiftApplication.playNewMoney(lgid : String, uid : String, lid : String)
+GET  	/linefriend/gift/bag/nplay 		controllers.line.GiftApplication1.playNewBag(lgid : String, uid : String, lid : String)
+GET  	/linefriend/gift/se/nplay 		controllers.line.GiftApplication2.playNewSe(lgid : String, uid : String, lid : String)
+
+GET   	/linefriend/gift/task/add     controllers.line.GiftTask.addTask(uid : String, lgid : String, giftType : String)
+GET   	/linefriend/gift/task/list     controllers.line.GiftTask.getTasks(uid : String)
+GET   	/linefriend/gift/task/del     controllers.line.GiftTask.removeTaks(uid : String, lgid : String, giftType : String)
+
+
+GET  	/linefriend/gift/finish/list 			controllers.line.GiftApplication2.getAchived(uid : String)
+GET  	/linefriend/gift/line/list 			controllers.line.GiftApplication.getTaskLines(uid : String)
+GET  	/linefriend/gift/money/list 			controllers.line.GiftApplication.getTaskMoney(uid : String)
+GET  	/linefriend/gift/bag/list 			controllers.line.GiftApplication1.getTaskBags(uid : String)
+GET  	/linefriend/gift/se/list 			controllers.line.GiftApplication2.getTaskSes(uid : String)
+
+GET  	/linefriend/gift/line/nlist 			controllers.line.GiftApplication.getNewTaskLines(uid : String)
+GET  	/linefriend/gift/money/nlist 			controllers.line.GiftApplication.getNewTaskMoney(uid : String)
+GET  	/linefriend/gift/bag/nlist 			controllers.line.GiftApplication1.getNewTaskBags(uid : String)
+GET  	/linefriend/gift/se/nlist 			controllers.line.GiftApplication2.getNewTaskSes(uid : String)
+
+GET  	/linefriend/gift/line/next_time 	controllers.line.GiftApplication.getPlayLineNextTime(uid : String, lgid : String ?= "")
+GET  	/linefriend/gift/money/next_time 	controllers.line.GiftApplication.getPlayMoneyNextTime(uid : String, lgid : String ?= "")
+GET  	/linefriend/gift/bag/next_time 	controllers.line.GiftApplication1.getPlayBagNextTime(uid : String, lgid : String ?= "")
+GET  	/linefriend/gift/se/next_time 	controllers.line.GiftApplication2.getPlaySeNextTime(uid : String, lgid : String ?= "")
+
+GET 	/linefriend/gift/player/list 		controllers.line.GiftApplication2.getAllPlayer()
+GET 	/linefriend/gift/oneplayer/list 	controllers.line.GiftApplication2.getSinglePlayer( sid : String)
+GET 	/linefriend/gift/list 		controllers.line.GiftApplication2.getProduct()
+GET 	/linefriend/gift/list1 		controllers.line.GiftApplication.getProduct1()
+
+GET		/linefriend/admin/console	controllers.line.AdminConsole.index(searchLid : String ?= "", searchStatus : Int ?= 1)
+POST	/linefriend/admin/console/update	controllers.line.AdminConsole.update()
+
+GET		/linefriend/admin/money/console	controllers.line.AdminConsole.indexMoney(searchName : String ?= "", searchStatus : Int ?= 1)
+GET		/linefriend/admin/bag/console	controllers.line.AdminConsole.indexBag(searchName : String ?= "", searchStatus : Int ?= 1)
+GET		/linefriend/admin/se/console	controllers.line.AdminConsole.indexSe(searchName : String ?= "", searchStatus : Int ?= 1)
+
+POST	/linefriend/admin/console/update	controllers.line.AdminConsole.update()
+POST	/linefriend/admin/money/console/update	controllers.line.AdminConsole.updateMoney()
+POST	/linefriend/admin/bag/console/update	controllers.line.AdminConsole.updateBag()
+POST	/linefriend/admin/se/console/update	controllers.line.AdminConsole.updateSe()
+GET  	/linefriend/admin/queue/approve		controllers.line.AdminQueue.approve(giftType : String, to : String)
+GET  	/linefriend/admin/queue/list		controllers.line.AdminQueue.getQueues(giftType : String)
+
+GET  	/linefriend/gift/line/repo 		controllers.line.GiftReportApplication.reportLine(lgid : String, uid : String, lid : String, lnick: String, lname: String, code : String)
+
+GET  	/linefriend/gift/money/repo 		controllers.line.GiftReportApplication.reportMoney(lgid : String, uid : String, bank_name : String, bank_code: String, account: String, account_name : String, code : String)
+GET  	/linefriend/gift/bag/repo 		controllers.line.GiftReportApplication.reportBag(lgid : String, uid : String, postcode : String, address: String, account: String, phone : String, code : String)
+GET  	/linefriend/gift/se/repo 		controllers.line.GiftReportApplication.reportSe(lgid : String, uid : String, postcode : String, address: String, account: String, phone : String, code : String)
+
+
+GET  	/linefriend/gift/line/repo/msg 		controllers.line.GiftReportApplication.reportLineMsg(lgid : String, uid : String, msg : String)
+
+GET  	/linefriend/gift/line/get/repo/msg 		controllers.line.GiftReportApplication.getReportLineMsg(lgid : String, uid : String)
+
+GET  	/linefriend/queue/count 		controllers.line.GiftQueueApplication.getGiftCount(giftType : String)
+GET  	/linefriend/queue/add 		controllers.line.GiftQueueApplication.addInQueue(uid : String, lgid : String, giftType : String)
+GET  	/linefriend/queue/list 		controllers.line.GiftQueueApplication.getMyQueue(uid : String)
+GET  	/linefriend/queue/del 		controllers.line.GiftQueueApplication.removeFromQueue(uid : String, lgid : String, giftType : String)
+GET  	/linefriend/queue/go 		controllers.line.GiftQueueApplication.goToday(uid : String)
+POST  	/linefriend/gift/ad/trialpay 	controllers.line.ad.ADCallback.reportTrialpay()
+
+
+
+###############################################################################################
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               	controllers.Assets.at(path="/public", file)

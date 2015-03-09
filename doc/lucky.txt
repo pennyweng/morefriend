@@ -1,0 +1,78 @@
+http://localhost:9000/linefriend/lucky/create?lkid=lucky4
+{
+    "id": "lucky4",
+    "name": "Sony MN2 SmartWatch",
+    "image": "http://www.pocketables.com/images/2013/06/sony-sw-2-608x608.jpg",
+    "desc": "Sony SmartWatch MN2 智慧手錶是一款多點觸控彩色 OLED 顯示螢幕智慧手錶，能讀取電子郵件、SMS 和其他通知。滑動以捲動。碰觸以進行導覽。G-mail、POP3 和其他電子郵件外掛程式都可以在 Google Play 商店中找到。",
+    "award":"參加者需至少達到3000人。達到人數後的最近一期今彩539開獎數字合併之後除以參與人數，得到的餘數加ㄧ就是參加者的中獎號碼。",
+    "max_count": 3000,
+    "current_count":426
+}
+
+http://localhost:9000/linefriend/lucky/create?lkid=lucky5
+{
+    "id": "lucky5",
+    "name": "台中水舞谷關渡假溫泉館 雙人湯屋泡湯券",
+    "image": "http://tms.ticketgo.com.tw/wms/hotel/TKS/TicketImageDir/345/2848_1.jpg",
+    "desc": "旺季期間11月-2月平日(週一至週五)可使用精緻湯屋1.5H乙次；假日(週六至週日)使用需加價200元。春節期間暫停使用。",
+    "award":"參加者需至少達到1500人。達到人數後的最近一期今彩539開獎數字合併之後除以參與人數，得到的餘數加ㄧ就是參加者的中獎號碼。",
+    "max_count": 1500,
+    "current_count":0
+}
+
+http://localhost:9000/linefriend/lucky/create?lkid=lucky6
+{
+    "id": "lucky6",
+    "name": "SanDisk Ultra Fit USB 3.0 高速隨身碟 (公司貨) 64GB",
+    "image": "http://www.momoshop.com.tw/goodsimg/0002/843/732/2843732_L.jpg",
+    "desc": "傳輸速度每秒可達130MB，傳輸速度高達USB 2.0的10倍。",
+    "award":"參加者需至少達到1800人。達到人數後的最近一期今彩539開獎數字合併之後除以參與人數，得到的餘數加ㄧ就是參加者的中獎號碼。",
+    "max_count": 1800,
+    "current_count":0
+}
+
+http://localhost:9000/linefriend/lucky/create?lkid=lucky7
+{
+    "id": "lucky7",
+    "name": "香港雙人來回機票+一萬元旅遊基金",
+    "image": "http://www.101media.com.tw/img/file/14011176289mvg6.jpg",
+    "desc": "來回經濟艙機票(機票效期2~14天)，出發地台北、台中、高雄不限",
+    "award":"參加者需至少達到30,000人。達到人數後的最近一期今彩539開獎數字合併之後除以參與人數，得到的餘數加ㄧ就是參加者的中獎號碼。",
+    "max_count": 30000,
+    "current_count":0
+}
+
+http://localhost:9000/linefriend/lucky/create?lkid=lucky8
+{
+    "id": "lucky8",
+    "name": "日本東京成田雙人來回機票+兩萬元旅遊基金",
+    "image": "http://www.utourworld.com/UpLoad/2014/03/11/2014031119133323.jpg",
+    "desc": "雙人來回經濟艙機票(機票效期2~14天)",
+    "award":"參加者需至少達到60,000人。達到人數後的最近一期今彩539開獎數字合併之後除以參與人數，得到的餘數加ㄧ就是參加者的中獎號碼。",
+    "max_count": 60000,
+    "current_count":0
+}
+
+http://localhost:9000/linefriend/lucky/create?lkid=lucky9
+{
+    "id": "lucky9",
+    "name": "美國西雅圖來回機票+三萬元旅遊基金",
+    "image": "http://pic.baike.soso.com/p/20120820/20120820173217-2039719732.jpg",
+    "desc": "來回經濟艙機票(機票效期2~14天)",
+    "award":"參加者需至少達到120,000人。達到人數後的最近一期今彩539開獎數字合併之後除以參與人數，得到的餘數加ㄧ就是參加者的中獎號碼。",
+    "max_count": 120000,
+    "current_count":0
+}
+
+http://localhost:9000/linefriend/lucky/create?lkid=lucky10
+{
+    "id": "lucky10",
+    "name": "Apple iPhone 6",
+    "image": "http://itechnow.com/wp-content/uploads/2013/11/iphone6-concept.png",
+    "desc": "Apple iPhone 6 (16G)，4.7吋Multi-Touch觸控螢幕，iOS8作業系統",
+    "award":"參加者需至少達到30,000人。達到人數後的最近一期今彩539開獎數字合併之後除以參與人數，得到的餘數加ㄧ就是參加者的中獎號碼。",
+    "max_count": 30000,
+    "current_count":0
+}
+
+http://localhost:9000/linefriend/lucky/winner/create?uid=546D80E903AF643AA7FCD6292AA2DD26B84BFE4B&lkid=lucky3&desc=依據今彩539第1200期開獎結果&winCount=2

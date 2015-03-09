@@ -1,0 +1,156 @@
+1. RequestRoom
+handset send MAC address base64
+E8308298402399320
+
+server response
+room id = mac + timestamp
+E83082984023993201374590192
+
+msgType##msg
+
+1. Client request join
+youId(mac), nickname, gender, picId, location
+{
+	"msgType":"join",
+	"msg": {
+		"userId": "12323124214214",
+		"nickname": "penny",
+		"gender": "F",
+		"findGender": "M",
+		"picId":"123214-343243243",
+		"location":"120.2.3.4",
+		"gps":"32323#23232",
+		"guys":3
+	}
+}
+pic upload to server
+
+/send 1#{"userId": "penny","nickname": "penny1","gender": "F","findGender": "M","picId":"123214-343243243","location":"120.2.3.4","gps":"3232323232","guys":3}
+
+
+/send 1#{"userId": "penny1","nickname": "penny1","gender": "F","findGender": "M","picId":"123214-343243243","location":"120.2.3.4","gps":"3232323232","guys":3}
+
+/send 1#{"userId": "penny2","nickname": "penny2","gender": "F","findGender": "M","picId":"123214-343243243","location":"120.2.3.4","gps":"3232323232","guys":3}
+
+/send 1#{"userId": "penny3","nickname": "penny3","gender": "F","findGender": "M","picId":"123214-343243243","location":"120.2.3.4","gps":"3232323232","guys":3}
+
+
+/send 1#{"userId": "penny4","nickname": "penny4","gender": "F","findGender": "M","picId":"123214-343243243","location":"120.2.3.4","gps":"3232323232","guys":3}
+
+/send 1#{"userId": "penny6","nickname": "penny6","gender": "F","findGender": "M","picId":"123214-343243243","location":"120.2.3.4","gps":"3232323232","guys":3}
+
+/send 1#{"userId": "penny2","nickname": "penny2","gender": "M","findGender": "F","picId":"123214-343243243","location":"120.2.3.4","gps":"3232323232","guys":3}
+
+
+
+2. Server send wait to client
+{
+	"msgType":"wait",
+	"msg":{
+		"youNum":"12"
+	}
+}
+
+3. Client send pass message to server
+{
+	"msgType":"pass_req",
+	"msg":{
+		"youId": "12323124214214"
+	}
+}
+
+4. Server send pass result to client
+{
+	"msgType":"pass_res",
+	"msg":{
+		"youNum":"2"
+		"passNum":3,
+		"passCount":1
+	}
+}
+
+5. Server send talk begin
+{
+	"msgType":"talk_begin",
+	"msg":{
+		"toId":"1221323123132"
+		"nickname": "penny",
+		"gender": "F",
+		"picId":"123214-343243243"
+		"location":"120.2.3.4"
+		"gps":"32323#23232",
+	}
+}
+
+6. Client send text to server
+{
+	"msgType":"talking",
+	"msg":{
+		"yourId":"324342432432",
+		"toId":"342423432423432",
+		"msg":"hello again"
+	}
+}
+
+/send 6#{"yourId":"test1","toId":"test2","msg":"goodmorning again"}
+/send 6#{"yourId":"penny1","toId":"penny2","msg":"goodmorning again"}
+
+
+7. Client send end of talk
+{
+	"msgType":"talk_end",
+	"msg":{
+		"youId":"324342432432",
+		"toId":"342423432423432",
+		"endmessage":""
+	}
+}
+
+
+/send 7#{"yourId":"penny1","toId":"penny2","msg":"goodbyte","nickname":"test","seeAgain":0}
+8. Client send end message
+{
+	"msgType":"send_end_msg",
+	"msg":{
+		"youId":"324342432432",
+		"toId":"342423432423432",
+		"endmessage":""
+	}
+}
+
+
+9. Client receive end message
+{
+	"msgType":"receive_end_msg",
+	"msg":{
+		"youId":"324342432432",
+		"toId":"342423432423432",
+		"nickname": "penny",
+		"endmessage":"3234342342"
+	}
+}
+
+
+10. Client send next message
+{
+	"msgType":"next_one",
+	"msg":{
+		"youId":"324342432432",
+		"toId":"342423432423432",
+		"endmessage":""
+	}
+}
+
+goto 2 or 5 msgType
+
+
+{
+    "id": "lucky1",
+    "name": "Sony MN2 SmartWatch",
+    "image": "http://ec1img.pchome.com.tw/pic/v1/data/item/201403/D/I/A/C/8/P/DIAC8P-A77747316000_5313efc37f7d0.jpg",
+    "desc": "參加者需至少達到3000人。達到後的最新一期今彩539開獎數字合併之後除以參與人數，得到的餘數加ㄧ就是參加者的中獎號碼。",
+    "max_count": 3000
+}
+
+
+

@@ -1,0 +1,82 @@
+@(msgs: Seq[controllers.line.QClass], giftType : String)
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>分類交友</title>
+
+    <!-- Bootstrap -->
+    <link href="@routes.Assets.at("css/bootstrap.min.css")" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<style>
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+    text-align: left;    
+}
+</style>    
+  </head>
+  <body>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="@routes.Assets.at("js/bootstrap.min.js")"></script>
+
+    <div class="container-fluid">
+<a href="/linefriend/admin/console">送貼圖 </a><a href="/linefriend/admin/money/console">送現金 </a><a href="/linefriend/admin/bag/console">送刮刮樂 </a><a href="/linefriend/admin/se/console">送商品 </a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+      <a href="/linefriend/admin/queue/list?giftType=FR_LINE">放行貼圖 </a><a href="/linefriend/admin/queue/list?giftType=FR_MONY">放行現金 </a><a href="/linefriend/admin/queue/list?giftType=BAG">放行刮刮樂 </a><a href="/linefriend/admin/queue/list?giftType=SE">放行商品 </a>
+      @defining(if(giftType == "FR_LINE") {
+        "LINE貼圖"
+      }else if(giftType == "FR_MONEY") {
+        "現金"
+      } else if(giftType == "FR_BAG") {
+      "刮刮樂"
+      } else {
+        "商品"
+      }) { k =>
+      <h1 class="blog-title">分類交友後臺管理系統-放行@k</h1>
+      }
+      <br />
+      <table style="width:100%">
+        <tr>
+          <th>號碼</th>
+          <th>獎勵名稱</th>
+          <th>User ID</th>
+          <th>Lucky ID</th>
+          <th></th>
+        </tr>
+        @for(msg <- msgs) {
+        <tr>
+          @defining(msg.lgid + "_" + msg.uid){ id=>
+          <td>
+            <form id="form@id" action="/linefriend/admin/queue/approve" method="GET">
+              <input type="hidden" form="form@id" name="to" value="@msg.ncount" />
+              <input type="hidden" form="form@id" name="giftType" value="@giftType" />
+            </form>
+            @msg.ncount
+          </td>
+          <td>@msg.name</td>
+          <td>@msg.uid</td>
+          <td>@msg.lgid</td>
+          <td><input form="form@id" type="submit" name="updatebt" value="放行"/></td>
+          }
+        </tr>
+        }
+      </table>
+<!-- (rmid : String, cts : String, lnick : String, lid : String, lname : String, code : String, userMsgs : Array[String], lineImg : String, mark : String) -->
+  </body>
+</html>
