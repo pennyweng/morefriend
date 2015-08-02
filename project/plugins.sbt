@@ -9,4 +9,4 @@ resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 resolvers += "rediscala" at "https://raw.github.com/etaty/rediscala-mvn/master/releases/"
 
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.4")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.1")

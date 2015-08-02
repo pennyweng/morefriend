@@ -96,12 +96,12 @@ object LineApplication extends Controller {
 // 	val mapper = new ObjectMapper()
 
 // 	case class LineMessage @JsonCreator() (
-// 		@scala.reflect.BeanProperty @JsonProperty("msg") msg : String, 
-// 		@scala.reflect.BeanProperty @JsonProperty("from") from : String,
-// 		@scala.reflect.BeanProperty @JsonProperty("fromLid") fromLid : String,
-// 		@scala.reflect.BeanProperty @JsonProperty("to") to : String,
-// 		@scala.reflect.BeanProperty @JsonProperty("toLid") toLid : String,
-// 		@scala.reflect.BeanProperty @JsonProperty("ts") ts : Long		
+// 		@scala.beans.BeanProperty @JsonProperty("msg") msg : String, 
+// 		@scala.beans.BeanProperty @JsonProperty("from") from : String,
+// 		@scala.beans.BeanProperty @JsonProperty("fromLid") fromLid : String,
+// 		@scala.beans.BeanProperty @JsonProperty("to") to : String,
+// 		@scala.beans.BeanProperty @JsonProperty("toLid") toLid : String,
+// 		@scala.beans.BeanProperty @JsonProperty("ts") ts : Long		
 // 	)
 
 // 	def updateOnline( uid : String ) {

@@ -244,10 +244,12 @@ object GameApplication2 extends Controller {
 	def getCurrentAllGames(uid : String) = Action.async {
 		Logger.info(s"getCurrentAllGame uid:${uid}")
 
-		val guessGame = redis.hlen(REDIS_KEY_GAME_HISTORY + GameApplication.currentGuessGid).map { ee =>
-			s"""{"game_info":${GameApplication.currentGuessGame},"small":${GameApplication.currentGuessSmallNumber}, 
-			"big":${GameApplication.currentGuessBigNumber},"count":${ee} }"""
-		}
+		// val guessGame = redis.hlen(REDIS_KEY_GAME_HISTORY + GameApplication.currentGuessGid).map { ee =>
+		// 	if(GameApplication.currentGuessGame != "")
+		// 	s"""{"game_info":${GameApplication.currentGuessGame},"small":${GameApplication.currentGuessSmallNumber}, 
+		// 	"big":${GameApplication.currentGuessBigNumber},"count":${ee} }"""
+		// 	else ""
+		// }
 
 		val abGame = redis.hlen(REDIS_KEY_GAME_HISTORY + GameApplication1.currentABGid).map { ee =>
 			s"""{"game_info":${GameApplication1.currentABGame},"small":${GameApplication1.currentABSmallNumber}, 
@@ -260,11 +262,13 @@ object GameApplication2 extends Controller {
 		}	
 
 		for {
-			a <- guessGame
+			// a <- guessGame
 			b <- abGame
 			c <- lnGame
 		} yield {
-			Ok(s"[${a},${b},${c}]")	
+			// if(a != "")
+			// Ok(s"[${a},${b},${c}]")	
+			Ok(s"[${b},${c}]")
 		}
 	}	
 }

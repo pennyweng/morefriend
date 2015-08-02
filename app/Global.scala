@@ -20,6 +20,7 @@ import models.Notification._
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.annotation._
 import controllers.line.BlockApplication
+import controllers.line.FinalNumberApplication
 
 object Global extends GlobalSettings {
   val GCM_FILE = "gcm.out"
@@ -29,7 +30,7 @@ object Global extends GlobalSettings {
   val NOTIFY_WOMEN_LIMITION_FILE = "notifyWomenLimition.out"
   val NOTIFY_MEN_LIMITION_FILE = "notifyMenLimition.out"
   val mapper = new ObjectMapper()
-  
+  mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true) 
 
   override def onStart(app: Application) {
     Logger.info("Application has started")
@@ -39,19 +40,44 @@ object Global extends GlobalSettings {
     // controllers.LineApplication.createChatRoom
     // controllers.LineApplication.postAllPost
     // models.Line.updateAllUserProfile()
+    // controllers.line.AccountApplication.generateAccount()
 
-
-    controllers.line.GameApplication.reloadCurrentGuessGame()
+    // controllers.line.GameApplication.reloadCurrentGuessGame()
+    // controllers.line.GiftApplication.updateWinner()
+    
     controllers.line.GameApplication1.reloadCurrentABGame()
     controllers.line.GameApplication2.reloadCurrentLNGame
 
-  	Akka.system.scheduler.schedule(0.microsecond, 10.second, default, CheckWaitingUser())
+    // controllers.line.AdminConsole.updateReport()
+
+  	//Akka.system.scheduler.schedule(0.microsecond, 10.second, default, CheckWaitingUser())
     Akka.system.scheduler.schedule(0 second, 86400 second) {
       controllers.line.BlockApplication.refreshAdminBlock()
       controllers.line.TraceApplication.delActiveHotUsers()
       // controllers.line.AdminQueue.delay()
     }
 
+    Akka.system.scheduler.schedule(0 second, 600 second) {
+      try {
+        models.Ptt.parse()
+      } catch {
+        case e : Throwable => println("error:" + e.getMessage)
+      }
+    }
+
+    // Akka.system.scheduler.schedule(0 second, 3600 second) {
+    //   try {
+    //     FinalNumberApplication.checkNewFinal()
+    //   } catch {
+    //     case e : Throwable => println("error:" + e.getMessage)
+    //   }
+    // }
+
+    // Akka.system.scheduler.schedule(1000 second, 1800 second) {
+    //   models.Ptt.parse1()
+    // }    
+
+    
     // controllers.line.GiftApplication.genEmptyCode()
 
     

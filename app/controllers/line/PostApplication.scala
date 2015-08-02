@@ -28,6 +28,8 @@ object PostApplication  extends Controller {
 	implicit val system = Akka.system
 	val redis = RedisClient(REDIS_HOST, 6379)
 	val mapper = new ObjectMapper()
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+		
 	val NUM_OF_PAGE = 50
 	val postPath = "./post"	
 
@@ -48,13 +50,13 @@ object PostApplication  extends Controller {
 
 
 	case class PostItem @JsonCreator() (
-		@scala.reflect.BeanProperty @JsonProperty("uid") uid : String, 
-		@scala.reflect.BeanProperty @JsonProperty("lid") lid : String,
-		@scala.reflect.BeanProperty @JsonProperty("data") data : String,
-		@scala.reflect.BeanProperty @JsonProperty("pid") pid : String,
-		@scala.reflect.BeanProperty @JsonProperty("ts") ts : Long,		
-		@scala.reflect.BeanProperty @JsonProperty("with_pic") with_pic : Boolean,
-		@scala.reflect.BeanProperty @JsonProperty("reply_count") reply_count : Int
+		@scala.beans.BeanProperty @JsonProperty("uid") uid : String, 
+		@scala.beans.BeanProperty @JsonProperty("lid") lid : String,
+		@scala.beans.BeanProperty @JsonProperty("data") data : String,
+		@scala.beans.BeanProperty @JsonProperty("pid") pid : String,
+		@scala.beans.BeanProperty @JsonProperty("ts") ts : Long,		
+		@scala.beans.BeanProperty @JsonProperty("with_pic") with_pic : Boolean,
+		@scala.beans.BeanProperty @JsonProperty("reply_count") reply_count : Int
 	)
 
 	def createPost(uid : String, lid : String, data : String,  categoryType : String, categoryId : String, withPic : Boolean) = Action(parse.temporaryFile) { request =>

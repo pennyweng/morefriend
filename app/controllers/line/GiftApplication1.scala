@@ -34,6 +34,8 @@ object GiftApplication1 extends Controller {
 	val redis = RedisClientPool(List(redis1))
 
 	val mapper = new ObjectMapper()
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+		
 	val NEXT_TIME = 3800000 * 1l
 	val MAX_SHOW = 500
 	// val MAX_HIT_COUNT = 10
@@ -56,6 +58,17 @@ object GiftApplication1 extends Controller {
 		val data = body.asText.getOrElse("")
 		val ff = mapper.readTree(data)
 		val id = java.util.UUID.randomUUID.toString
+		// val result = s"""{
+		// 	"id":"${id}",
+		// 	"type":"FR_BAG",
+		// 	"name":"${ff.get("name").asText}",
+		// 	"max_count":${ff.get("max_count").asInt},
+		// 	"img":"${ff.get("img").asText}",
+		// 	"position":${ff.get("position").asInt},
+		// 	"ct":${System.currentTimeMillis},
+		// 	"max_ncount":${2 * ff.get("max_count").asInt}
+		// }"""
+
 		val result = s"""{
 			"id":"${id}",
 			"type":"FR_BAG",
@@ -64,8 +77,9 @@ object GiftApplication1 extends Controller {
 			"img":"${ff.get("img").asText}",
 			"position":${ff.get("position").asInt},
 			"ct":${System.currentTimeMillis},
-			"max_ncount":${2 * ff.get("max_count").asInt}
-		}"""
+			"max_ncount":${ff.get("max_ncount").asInt},
+			"point":${ff.get("point").asInt}
+		}"""		
 		redis.hset(REDIS_KEY_GIFT_BAG, id, result)
 
 		Ok(result)		
@@ -108,7 +122,7 @@ object GiftApplication1 extends Controller {
 					}
 				redis.hset(REDIS_KEY_GIFT_BAG_CHECK_TIME + lgid, uid, now)
 				redis.hset(REDIS_KEY_GIFT_BAG_PLAY_COUNT, lgid + "_" + uid, sd.toString)
-				val nextPlay = now + 3600000l * 3 + 60000l * new Random().nextInt(120)
+				val nextPlay = now + 3600000l * 2 + 60000l * new Random().nextInt(120)
 				redis.hset(REDIS_KEY_GIFT_BAG_NEW_CHECK_TIME, uid, nextPlay)
 
 

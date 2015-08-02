@@ -20,23 +20,23 @@ import com.fasterxml.jackson.annotation._
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 case class LineUserInfo @JsonCreator() (
-	@scala.reflect.BeanProperty @JsonProperty("uid") uid : String, 
-	@scala.reflect.BeanProperty @JsonProperty("nn")  nn : String,
-	@scala.reflect.BeanProperty @JsonProperty("lid") lid : String,
-	@scala.reflect.BeanProperty @JsonProperty("s") s : String,
-	@scala.reflect.BeanProperty @JsonProperty("in") in : String = "",
-	@scala.reflect.BeanProperty @JsonProperty("pn") pn : String = "",
-	@scala.reflect.BeanProperty @JsonProperty("cn") cn : String = "",
-	@scala.reflect.BeanProperty @JsonProperty("on") on : String = ""
+	@scala.beans.BeanProperty @JsonProperty("uid") uid : String, 
+	@scala.beans.BeanProperty @JsonProperty("nn")  nn : String,
+	@scala.beans.BeanProperty @JsonProperty("lid") lid : String,
+	@scala.beans.BeanProperty @JsonProperty("s") s : String,
+	@scala.beans.BeanProperty @JsonProperty("in") in : String = "",
+	@scala.beans.BeanProperty @JsonProperty("pn") pn : String = "",
+	@scala.beans.BeanProperty @JsonProperty("cn") cn : String = "",
+	@scala.beans.BeanProperty @JsonProperty("on") on : String = ""
 
 	)
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 case class OriginLineUserInfo @JsonCreator() (
-	@scala.reflect.BeanProperty @JsonProperty("uid") uid : String, 
-	@scala.reflect.BeanProperty @JsonProperty("nn")  nn : String,
-	@scala.reflect.BeanProperty @JsonProperty("lid") lid : String,
-	@scala.reflect.BeanProperty @JsonProperty("s") s : String
+	@scala.beans.BeanProperty @JsonProperty("uid") uid : String, 
+	@scala.beans.BeanProperty @JsonProperty("nn")  nn : String,
+	@scala.beans.BeanProperty @JsonProperty("lid") lid : String,
+	@scala.beans.BeanProperty @JsonProperty("s") s : String
 
 	)
 

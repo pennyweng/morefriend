@@ -37,12 +37,14 @@ GET 	/linefriend/account/hidesetting controllers.line.AccountApplication.hidePro
 GET 	/linefriend/gcm/register		controllers.line.AccountApplication.register(uid: String , gcmId : String)
 
 GET 	/linefriend/gcm/unregister		controllers.line.AccountApplication.unRegister(uid:String)
+POST	/linefriend/account/upload_img		controllers.line.AccountApplication.uploadImg(uid : String)
 
 ###############################################################################################
 GET 	/linefriend/account/search		controllers.line.SearchApplication.search(categoryType : String, categoryId : String, page: Int ?= 0, s : String ?= "", uid : String ?= "")
 
 GET 	/linefriend/account/count	 	controllers.line.SearchApplication.searchCategoryCount(categoryType : String, s : String, uid : String ?= "")
 
+GET 	/linefriend/account/search1		controllers.line.SearchApplication.search1(page: Int ?= 0, s : String ?= "", uid : String ?= "")
 
 ###############################################################################################
 POST	/linefriend/post/create  		controllers.line.PostApplication.createPost(uid : String, lid : String, data : String, categoryType : String, categoryId : String, withPic : Boolean)
@@ -129,16 +131,22 @@ GET  	/linefriend/lucky/history/all 		controllers.line.LuckyApplication.getAllHi
 GET  	/linefriend/lucky/winner/list 		controllers.line.LuckyApplication.getAllWinner(uid : String)
 GET  	/linefriend/lucky/next_time 	controllers.line.LuckyApplication.getNextTime(uid : String, lkid : String)
 
+
+
 ###############################################################################################
 POST  	/linefriend/gift/line/create 		controllers.line.GiftApplication.createLine()
 POST  	/linefriend/gift/money/create 		controllers.line.GiftApplication.createMoney()
 POST  	/linefriend/gift/bag/create 		controllers.line.GiftApplication1.createBag()
 POST  	/linefriend/gift/se/create 		controllers.line.GiftApplication2.createSe()
+POST  	/linefriend/gift/line_topic/create 		controllers.line.GiftApplication3.createLineTopic()
+#POST  	/linefriend/gift/line_product/create 		controllers.line.GiftApplication2.createSe()
 
-GET  	/linefriend/gift/line/play 			controllers.line.GiftApplication.playLine(lgid : String, uid : String, lid : String)
-GET  	/linefriend/gift/money/play 		controllers.line.GiftApplication.playMoney(lgid : String, uid : String, lid : String)
-GET  	/linefriend/gift/bag/play 		controllers.line.GiftApplication1.playBag(lgid : String, uid : String, lid : String)
-GET  	/linefriend/gift/se/play 		controllers.line.GiftApplication2.playSe(lgid : String, uid : String, lid : String)
+GET  	/linefriend/gift/line/play 			controllers.line.GiftApplication.playNewLine(lgid : String, uid : String, lid : String)
+GET  	/linefriend/gift/money/play 		controllers.line.GiftApplication.playNewMoney(lgid : String, uid : String, lid : String)
+GET  	/linefriend/gift/bag/play 		controllers.line.GiftApplication1.playNewBag(lgid : String, uid : String, lid : String)
+GET  	/linefriend/gift/se/play 		controllers.line.GiftApplication2.playNewSe(lgid : String, uid : String, lid : String)
+GET  	/linefriend/gift/line_topic/play 			controllers.line.GiftApplication3.playNewLineTopic(lgid : String, uid : String, lid : String)
+
 
 GET  	/linefriend/gift/line/nplay 			controllers.line.GiftApplication.playNewLine(lgid : String, uid : String, lid : String)
 GET  	/linefriend/gift/money/nplay 		controllers.line.GiftApplication.playNewMoney(lgid : String, uid : String, lid : String)
@@ -150,35 +158,69 @@ GET   	/linefriend/gift/task/list     controllers.line.GiftTask.getTasks(uid : S
 GET   	/linefriend/gift/task/del     controllers.line.GiftTask.removeTaks(uid : String, lgid : String, giftType : String)
 
 
+GET  	/linefriend/gift/finish/list1 			controllers.line.GiftApplication3.getAchived(uid : String)
 GET  	/linefriend/gift/finish/list 			controllers.line.GiftApplication2.getAchived(uid : String)
-GET  	/linefriend/gift/line/list 			controllers.line.GiftApplication.getTaskLines(uid : String)
-GET  	/linefriend/gift/money/list 			controllers.line.GiftApplication.getTaskMoney(uid : String)
-GET  	/linefriend/gift/bag/list 			controllers.line.GiftApplication1.getTaskBags(uid : String)
-GET  	/linefriend/gift/se/list 			controllers.line.GiftApplication2.getTaskSes(uid : String)
+GET  	/linefriend/gift/line/list 			controllers.line.GiftApplication.getNewTaskLines(uid : String)
+GET  	/linefriend/gift/money/list 			controllers.line.GiftApplication.getNewTaskMoney(uid : String)
+GET  	/linefriend/gift/bag/list 			controllers.line.GiftApplication1.getNewTaskBags(uid : String)
+GET  	/linefriend/gift/se/list 			controllers.line.GiftApplication2.getNewTaskSes(uid : String)
 
 GET  	/linefriend/gift/line/nlist 			controllers.line.GiftApplication.getNewTaskLines(uid : String)
 GET  	/linefriend/gift/money/nlist 			controllers.line.GiftApplication.getNewTaskMoney(uid : String)
 GET  	/linefriend/gift/bag/nlist 			controllers.line.GiftApplication1.getNewTaskBags(uid : String)
 GET  	/linefriend/gift/se/nlist 			controllers.line.GiftApplication2.getNewTaskSes(uid : String)
+GET  	/linefriend/gift/line_topic/list 			controllers.line.GiftApplication3.getNewTaskLineTopic(uid : String)
+
 
 GET  	/linefriend/gift/line/next_time 	controllers.line.GiftApplication.getPlayLineNextTime(uid : String, lgid : String ?= "")
 GET  	/linefriend/gift/money/next_time 	controllers.line.GiftApplication.getPlayMoneyNextTime(uid : String, lgid : String ?= "")
 GET  	/linefriend/gift/bag/next_time 	controllers.line.GiftApplication1.getPlayBagNextTime(uid : String, lgid : String ?= "")
 GET  	/linefriend/gift/se/next_time 	controllers.line.GiftApplication2.getPlaySeNextTime(uid : String, lgid : String ?= "")
+GET  	/linefriend/gift/line_topic/next_time 	controllers.line.GiftApplication3.getPlayLineTopicNextTime(uid : String, lgid : String ?= "")
+
 
 GET 	/linefriend/gift/player/list 		controllers.line.GiftApplication2.getAllPlayer()
 GET 	/linefriend/gift/oneplayer/list 	controllers.line.GiftApplication2.getSinglePlayer( sid : String)
 GET 	/linefriend/gift/list 		controllers.line.GiftApplication2.getProduct()
 GET 	/linefriend/gift/list1 		controllers.line.GiftApplication.getProduct1()
 
+POST  	/linefriend/bid/create 				controllers.line.BidApplication.createBid()
+GET  	/linefriend/bid/history 			controllers.line.BidApplication.getBidHistory(uid : String, bid : String)
+GET  	/linefriend/bid/final 				controllers.line.BidApplication.doFinalBid(bid : String)
+GET  	/linefriend/bid/play 				controllers.line.BidApplication.playNewBid(bid : String, uid : String, bidValue : Int, nickName : String, quick : Boolean ?= false)
+GET  	/linefriend/bid/next 				controllers.line.BidApplication.getPlayBidNextTime(uid :String, bid : String)
+
+GET  	/linefriend/bid 					controllers.line.BidApplication.getCurrentBid(uid : String)
+GET  	/linefriend/bid/winner 				controllers.line.BidApplication.getWinner(uid : String)
+
+
+GET 	/linefriend/point/earn/report 	controllers.line.PointApplication.reportTotal(uid : String, totalPoint : Long,from : String)
+GET 	/linefriend/point/earn/daily 	controllers.line.PointApplication.earnDailyPoint(uid : String)
+GET 	/linefriend/point/earn 		controllers.line.PointApplication.earnPoint(uid :String, point : Long, from : String)
+GET 	/linefriend/point/line/consume 		controllers.line.PointApplication.consumeLine(uid : String, lgid : String)
+GET 	/linefriend/point/money/consume 		controllers.line.PointApplication.consumeMoney(uid : String, lgid : String)
+GET 	/linefriend/point/bag/consume 		controllers.line.PointApplication.consumeBag(uid : String, lgid : String)
+GET 	/linefriend/point/se/consume 		controllers.line.PointApplication.consumeSe(uid : String, lgid : String)
+GET 	/linefriend/point/line_topic/consume 		controllers.line.PointApplication.consumeLineTopic(uid : String, lgid : String)
+
+GET 	/linefriend/point 			controllers.line.PointApplication.getPoint(uid :String)
+GET 	/linefriend/point/promote/fb 	controllers.line.PointApplication.promoteFB(uid : String)
+GET 	/linefriend/point/next_time 	controllers.line.PointApplication.checkTodayClick1(uid :String)
+GET  	/linefriend/point/history 			controllers.line.PointApplication.getPointHistory(uid : String)
+GET 	/linefriend/point/yumi 		controllers.line.PointApplication.earnFromYumi(order : String, user : String, points : String, ad : String)
+GET 	/linefriend/point/adplay 		controllers.line.PointApplication.earnFromAdplay(achieve_id : String, identifier : String, point : String, campaign_name : String)
+
 GET		/linefriend/admin/console	controllers.line.AdminConsole.index(searchLid : String ?= "", searchStatus : Int ?= 1)
-POST	/linefriend/admin/console/update	controllers.line.AdminConsole.update()
+#POST	/linefriend/admin/console/update	controllers.line.AdminConsole.update()
 
 GET		/linefriend/admin/money/console	controllers.line.AdminConsole.indexMoney(searchName : String ?= "", searchStatus : Int ?= 1)
 GET		/linefriend/admin/bag/console	controllers.line.AdminConsole.indexBag(searchName : String ?= "", searchStatus : Int ?= 1)
 GET		/linefriend/admin/se/console	controllers.line.AdminConsole.indexSe(searchName : String ?= "", searchStatus : Int ?= 1)
 
-POST	/linefriend/admin/console/update	controllers.line.AdminConsole.update()
+GET		/linefriend/admin/topic/console	controllers.line.AdminConsole.indexLineTopic(searchLid : String ?= "", searchStatus : Int ?= 1)
+
+POST	/linefriend/admin/console/update	controllers.line.AdminConsole.update(isLine : Boolean ?= true)
+POST	/linefriend/admin/topic/console/update	controllers.line.AdminConsole.update(isLine : Boolean ?= false)
 POST	/linefriend/admin/money/console/update	controllers.line.AdminConsole.updateMoney()
 POST	/linefriend/admin/bag/console/update	controllers.line.AdminConsole.updateBag()
 POST	/linefriend/admin/se/console/update	controllers.line.AdminConsole.updateSe()
@@ -191,6 +233,8 @@ GET  	/linefriend/gift/money/repo 		controllers.line.GiftReportApplication.repor
 GET  	/linefriend/gift/bag/repo 		controllers.line.GiftReportApplication.reportBag(lgid : String, uid : String, postcode : String, address: String, account: String, phone : String, code : String)
 GET  	/linefriend/gift/se/repo 		controllers.line.GiftReportApplication.reportSe(lgid : String, uid : String, postcode : String, address: String, account: String, phone : String, code : String)
 
+GET  	/linefriend/gift/line_topic/repo 		controllers.line.GiftReportApplication.reportLineTopic(lgid : String, uid : String, lid : String, lnick: String, lname: String, code : String)
+
 
 GET  	/linefriend/gift/line/repo/msg 		controllers.line.GiftReportApplication.reportLineMsg(lgid : String, uid : String, msg : String)
 
@@ -202,7 +246,72 @@ GET  	/linefriend/queue/list 		controllers.line.GiftQueueApplication.getMyQueue(
 GET  	/linefriend/queue/del 		controllers.line.GiftQueueApplication.removeFromQueue(uid : String, lgid : String, giftType : String)
 GET  	/linefriend/queue/go 		controllers.line.GiftQueueApplication.goToday(uid : String)
 POST  	/linefriend/gift/ad/trialpay 	controllers.line.ad.ADCallback.reportTrialpay()
+GET 	/linefriend/ptt/bgbeauty 	controllers.PttApplication.getBGBeauty( uid : String ?= "")
+GET 	/linefriend/ptt 	controllers.PttApplication.getPtt1(uid : String ?= "", tp : String ?= "", page : Int ?= -1)
+GET 	/linefriend/newptt 	controllers.PttApplication.getPtt2(uid : String ?= "", tp : String ?= "", page : Int ?= -1)
+GET 	/linefriend/ptt/list controllers.PttApplication.getAllList
+GET 	/linefriend/ptt/list1 controllers.PttApplication.getAllList1
+GET 	/linefriend/ptt/list2 controllers.PttApplication.getAllList2
+###############################################################################################
 
+GET 	/linefriend/touch/create controllers.line.TouchApplication.createTouch()
+GET 	/linefriend/touch/list 	controllers.line.TouchApplication.list1(uid : String)
+GET 	/linefriend/touch/runlist 	controllers.line.TouchApplication.getRunningList(uid : String)
+GET 	/linefriend/touch/winlist 	controllers.line.TouchApplication.getWinnerList(uid : String)
+
+
+
+GET 	/linefriend/touch/play 	controllers.line.TouchApplication.play1(uid : String, tid : String, quick : Boolean ?= false)
+GET 	/linefriend/touch/msg 	controllers.line.TouchApplication.updateMsg(uid : String, tid : String, msg : String)
+GET 	/linefriend/touch/next_time 	controllers.line.TouchApplication.getPlayNextTime(uid : String)
+
+
+###############################################################################################
+GET  	/linefriend/glucky/next_time 	controllers.line.GLuckyApplication.getPlayNextTime(uid : String)
+GET  	/linefriend/glucky/create 		controllers.line.GLuckyApplication.createGLucky(uid : String)
+
+GET  	/linefriend/glucky/runlist 	controllers.line.GLuckyApplication.getRunningList1(uid : String)
+GET  	/linefriend/glucky/winlist 		controllers.line.GLuckyApplication.getWinnerList(uid : String)
+GET 	/linefriend/glucky/msg 			controllers.line.GLuckyApplication.updateMsg(uid : String, tid : String, msg : String)
+GET  	/linefriend/glucky/play 		controllers.line.GLuckyApplication.play1(uid : String, tid : String, mynumber : Int, quick : Boolean ?= false, msg : String)
+
+###############################################################################################
+GET  	/linefriend/fin/create 				controllers.line.FinalNumberApplication.createFn( uid : String)
+#GET  	/linefriend/fin/history 			controllers.line.FinalNumberApplication.getFnHistory(uid : String, gid : String)
+
+GET  	/linefriend/fin/msg 				controllers.line.FinalNumberApplication.updateMsg(gid : String, uid : String, msg : String)
+
+GET  	/linefriend/fin/play 				controllers.line.FinalNumberApplication.playNewFn(gid : String, uid : String, guess : Long, quick : Boolean ?= false)
+
+GET  	/linefriend/fin/next 				controllers.line.FinalNumberApplication.getPlayFnNextTime(uid :String, gid : String)
+
+GET  	/linefriend/fin 					controllers.line.FinalNumberApplication.getCurrentFn(uid : String)
+
+GET  	/linefriend/fin/winner 					controllers.line.FinalNumberApplication.getWinner(uid : String)
+
+
+################################################################################################
+GET  	/linefriend/happytime/create 				controllers.line.HappyTimeApplication.createHappyTime(uid : String)
+GET  	/linefriend/happytime/history 			controllers.line.HappyTimeApplication.getHappyTimeHistory(uid : String, happyTime : String)
+
+GET  	/linefriend/happytime/play 				controllers.line.HappyTimeApplication.playNewHappyTime(happyTime : String, uid : String, nickName : String, quick : Boolean ?= false)
+GET  	/linefriend/happytime/next 				controllers.line.HappyTimeApplication.getPlayHappyTimeNextTime(uid :String, happyTime : String)
+
+GET  	/linefriend/happytime 					controllers.line.HappyTimeApplication.getCurrentHappyTime(uid : String)
+GET  	/linefriend/happytime/winner 				controllers.line.HappyTimeApplication.getWinner(uid : String)
+
+GET 	/linefriend/happytime/msg 	controllers.line.HappyTimeApplication.updateMsg(uid : String, happyTime : String, msg : String)
+
+################################################################################################
+GET  	/linefriend/big/create 				controllers.line.BigApplication.createBig(uid : String)
+GET  	/linefriend/big/history 			controllers.line.BigApplication.getBigHistory(uid : String, big : String)
+
+GET  	/linefriend/big/play 				controllers.line.BigApplication.playNewBig(big : String, uid : String, nickName : String, quick : Boolean ?= false)
+GET  	/linefriend/big/next 				controllers.line.BigApplication.getPlayBigNextTime(uid :String, big : String)
+
+GET  	/linefriend/big 					controllers.line.BigApplication.getCurrentBig(uid : String)
+GET  	/linefriend/big/winner 				controllers.line.BigApplication.getWinner(uid : String)
+GET 	/linefriend/param	 				controllers.line.PointApplication.getParam(uid : String)
 
 
 ###############################################################################################

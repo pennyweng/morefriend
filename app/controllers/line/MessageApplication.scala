@@ -28,12 +28,12 @@ import controllers.line.TraceApplication._
 import models.Notification
 
 case class LineMessage @JsonCreator() (
-	@scala.reflect.BeanProperty @JsonProperty("msg") msg : String, 
-	@scala.reflect.BeanProperty @JsonProperty("from") from : String,
-	@scala.reflect.BeanProperty @JsonProperty("fromLid") fromLid : String,
-	@scala.reflect.BeanProperty @JsonProperty("to") to : String,
-	@scala.reflect.BeanProperty @JsonProperty("toLid") toLid : String,
-	@scala.reflect.BeanProperty @JsonProperty("ts") ts : Long		
+	@scala.beans.BeanProperty @JsonProperty("msg") msg : String, 
+	@scala.beans.BeanProperty @JsonProperty("from") from : String,
+	@scala.beans.BeanProperty @JsonProperty("fromLid") fromLid : String,
+	@scala.beans.BeanProperty @JsonProperty("to") to : String,
+	@scala.beans.BeanProperty @JsonProperty("toLid") toLid : String,
+	@scala.beans.BeanProperty @JsonProperty("ts") ts : Long		
 )
 
 object MessageApplication  extends Controller {
@@ -41,7 +41,8 @@ object MessageApplication  extends Controller {
 	val redis1 = RedisServer(REDIS_HOST, 6379)
 	val redis = RedisClientPool(List(redis1))
 	val mapper = new ObjectMapper()
-
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+	
 	val REDIS_KEY_MSG = "LMSG"
 	val REDIS_KEY_NOTIFICATION = "NOTIFY"
 
@@ -205,6 +206,7 @@ object MessageApplication  extends Controller {
 		redis.hdel(REDIS_KEY_NEW_MSG_NOTI_LAST_U, uid)
 
 		for {
+			bb <- redis.hgetall(REDIS_KEY_NEW_MSG + uid) //Future[Map[String, R]]
 			ss <- redis.hkeys(REDIS_KEY_NEW_MSG + uid) //Future[Seq[String]]
 			nn <- redis.hget(REDIS_KEY_NEW_MSG_NOTI, uid) // Future[Option[R]]
 			h <- if(ss.length > 0) redis.hmget(REDIS_KEY_USER, ss.toList : _*) else Future.successful(List(None))//Future[Seq[Option[R]]]
@@ -215,10 +217,15 @@ object MessageApplication  extends Controller {
 			val resp = h.flatten.map { ee =>
 				val s = ee.utf8String
 				val tuid = if(s.indexOf("uid\":") != -1 && s.indexOf(",") != -1) s.substring(s.indexOf("uid\":")+ 5, s.indexOf(",")).replace("\"","") else s
+				val lastWord = if(bb.contains(tuid)) {
+					val sv = mapper.readValue[Array[LineMessage]](bb(tuid).utf8String, classOf[Array[LineMessage]]) 
+					if(sv.length >0) sv(sv.length-1).msg else ""
+				} else ""
+
 				if(userss.indexOf(tuid) != -1) {
-					s"""{"userdata":${s}, "has_noti":true}"""
+					s"""{"userdata":${s}, "has_noti":true, "last_word":"${lastWord}"}"""
 				} else {
-					s"""{"userdata":${s}, "has_noti":false}"""
+					s"""{"userdata":${s}, "has_noti":false, "last_word":"${lastWord}" }"""
 				}
 			}.mkString("[", ",", "]")
 			Ok(resp)

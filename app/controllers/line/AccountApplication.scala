@@ -27,8 +27,11 @@ import controllers.line.TraceApplication._
 object AccountApplication extends Controller {
 	implicit val system = Akka.system
 	val redis = RedisClient(REDIS_HOST, 6379)
+	
 	val uploadPath = "./users"
-
+	val mapper = new ObjectMapper()
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+	
 	def getProfile(uid : String)  = Action.async {
 		Logger.info( s"get Profile uid:${uid}")
 		updateHot(uid)
@@ -47,6 +50,13 @@ object AccountApplication extends Controller {
 		Ok("")
 	}
 
+	def uploadImg(uid: String) = Action(parse.temporaryFile) { request =>
+		val path = uploadPath + "/" + uid + ".jpg"
+		Logger.info(" file upload path " + path)
+	  	request.body.moveTo(new java.io.File(path), true)
+	  	Ok("")
+	}
+
 	def createProfile(uid : String, nickname : String, lineId: String, interests: String, places : String, careers: String, olds: String, s: String, constellations: String, motions : String) = Action(parse.temporaryFile) { request =>
 		Logger.info( s"createProfile uid:${uid}, nickname:${nickname}, lineId:${lineId}, interest:${interests}, places:${places}, careers:${careers}, olds:${olds}, constellations:${constellations}, motions:${motions}")
 		if(BlockApplication.isBlock(uid, lineId)) {
@@ -57,29 +67,54 @@ object AccountApplication extends Controller {
 		Logger.info(" file upload path " + path)
 	  	request.body.moveTo(new java.io.File(path), true)
 
+	  	val now = System.currentTimeMillis
 		val userData = s"""{"uid":"${uid}", "nn":"${JSONFormat.quoteString(nickname)}", "lid":"${JSONFormat.quoteString(lineId)}", "s":"${s}", "in":"${interests}", "pn":"${places}", "cn":"${careers}", "on":"${olds}", "constel":"${constellations}","mo":"${motions}"} """
 		redis.hexists(REDIS_KEY_USER, uid).map { isExits =>
-			if(!isExits) redis.zadd(REDIS_KEY_TODAY_USER, (System.currentTimeMillis, uid))
+			if(!isExits) redis.zadd(REDIS_KEY_TODAY_USER, (now, uid))
 		}
 		
 		redis.hset(REDIS_KEY_USER, uid, userData)
+
+		redis.zscore(REDIS_KEY_ACCOUNT, uid).map { ss => //Future[Option[Double]]
+			if(!ss.isDefined) {
+				redis.zadd(REDIS_KEY_ACCOUNT, (now, uid))
+			}
+		}
+
+		if(s == "M") {
+			redis.zscore(REDIS_KEY_ACCOUNT_MAN, uid).map { ss => //Future[Option[Double]]
+				if(!ss.isDefined) {
+					redis.zadd(REDIS_KEY_ACCOUNT_MAN, (now, uid))
+				}
+			}
+			redis.zrem(REDIS_KEY_ACCOUNT_WOMEN, uid)
+		} else if (s == "F") {
+			redis.zscore(REDIS_KEY_ACCOUNT_WOMEN, uid).map { ss => //Future[Option[Double]]
+				if(!ss.isDefined) {
+					redis.zadd(REDIS_KEY_ACCOUNT_WOMEN, (now, uid))
+				}
+			}
+			redis.zrem(REDIS_KEY_ACCOUNT_MAN, uid)
+		} 
+
+
 		interests.split(",").foreach { interest =>
 			redis.zscore(REDIS_KEY_INTEREST + interest, uid).map { ss => //Future[Option[Double]]
 				if(!ss.isDefined) {
-					redis.zadd(REDIS_KEY_INTEREST + interest, (System.currentTimeMillis, uid))
+					redis.zadd(REDIS_KEY_INTEREST + interest, (now, uid))
 				}
 			}
 			if(s == "M") {
 				redis.zscore(REDIS_KEY_INTEREST_M + interest, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_INTEREST_M + interest, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_INTEREST_M + interest, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_INTEREST_F + interest, uid)
 			} else {
 				redis.zscore(REDIS_KEY_INTEREST_F + interest, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_INTEREST_F + interest, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_INTEREST_F + interest, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_INTEREST_M + interest, uid)
@@ -89,20 +124,20 @@ object AccountApplication extends Controller {
 		places.split(",").foreach { place =>
 			redis.zscore(REDIS_KEY_PLACE + place, uid).map { ss => //Future[Option[Double]]
 				if(!ss.isDefined) {
-					redis.zadd(REDIS_KEY_PLACE + place, (System.currentTimeMillis, uid))
+					redis.zadd(REDIS_KEY_PLACE + place, (now, uid))
 				}
 			}
 			if(s == "M") {
 				redis.zscore(REDIS_KEY_PLACE_M + place, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_PLACE_M + place, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_PLACE_M + place, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_PLACE_F + place, uid)
 			} else {
 				redis.zscore(REDIS_KEY_PLACE_F + place, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_PLACE_F + place, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_PLACE_F + place, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_PLACE_M + place, uid)
@@ -112,20 +147,20 @@ object AccountApplication extends Controller {
 		careers.split(",").foreach { career =>
 			redis.zscore(REDIS_KEY_CAREER + career, uid).map { ss => //Future[Option[Double]]
 				if(!ss.isDefined) {
-					redis.zadd(REDIS_KEY_CAREER + career, (System.currentTimeMillis, uid))
+					redis.zadd(REDIS_KEY_CAREER + career, (now, uid))
 				}
 			}
 			if(s == "M") {
 				redis.zscore(REDIS_KEY_CAREER_M + career, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_CAREER_M + career, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_CAREER_M + career, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_CAREER_F + career, uid)
 			} else {
 				redis.zscore(REDIS_KEY_CAREER_F + career, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_CAREER_F + career, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_CAREER_F + career, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_CAREER_M + career, uid)
@@ -135,20 +170,20 @@ object AccountApplication extends Controller {
 		olds.split(",").foreach { old =>
 			redis.zscore(REDIS_KEY_OLD + old, uid).map { ss => //Future[Option[Double]]
 				if(!ss.isDefined) {
-					redis.zadd(REDIS_KEY_OLD + old, (System.currentTimeMillis, uid))
+					redis.zadd(REDIS_KEY_OLD + old, (now, uid))
 				}
 			}
 			if(s == "M") {
 				redis.zscore(REDIS_KEY_OLD_M + old, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_OLD_M + old, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_OLD_M + old, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_OLD_F + old, uid)
 			} else {
 				redis.zscore(REDIS_KEY_OLD_F + old, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_OLD_F + old, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_OLD_F + old, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_OLD_M + old, uid)
@@ -158,20 +193,20 @@ object AccountApplication extends Controller {
 		constellations.split(",").foreach { constellation =>
 			redis.zscore(REDIS_KEY_CONSTELLATION + constellation, uid).map { ss => //Future[Option[Double]]
 				if(!ss.isDefined) {
-					redis.zadd(REDIS_KEY_CONSTELLATION + constellation, (System.currentTimeMillis, uid))
+					redis.zadd(REDIS_KEY_CONSTELLATION + constellation, (now, uid))
 				}
 			}
 			if(s == "M") {
 				redis.zscore(REDIS_KEY_CONSTELLATION_M + constellation, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_CONSTELLATION_M + constellation, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_CONSTELLATION_M + constellation, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_CONSTELLATION_F + constellation, uid)
 			} else {
 				redis.zscore(REDIS_KEY_CONSTELLATION_F + constellation, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_CONSTELLATION_F + constellation, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_CONSTELLATION_F + constellation, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_CONSTELLATION_M + constellation, uid)
@@ -181,20 +216,20 @@ object AccountApplication extends Controller {
 		motions.split(",").foreach { motion =>
 			redis.zscore(REDIS_KEY_MOTION + motion, uid).map { ss => //Future[Option[Double]]
 				if(!ss.isDefined) {
-					redis.zadd(REDIS_KEY_MOTION + motion, (System.currentTimeMillis, uid))
+					redis.zadd(REDIS_KEY_MOTION + motion, (now, uid))
 				}
 			}
 			if(s == "M") {
 				redis.zscore(REDIS_KEY_MOTION_M + motion, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_MOTION_M + motion, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_MOTION_M + motion, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_MOTION_F + motion, uid)
 			} else {
 				redis.zscore(REDIS_KEY_MOTION_F + motion, uid).map { ss => //Future[Option[Double]]
 					if(!ss.isDefined) {
-						redis.zadd(REDIS_KEY_MOTION_F + motion, (System.currentTimeMillis, uid))
+						redis.zadd(REDIS_KEY_MOTION_F + motion, (now, uid))
 					}
 				}
 				redis.zrem(REDIS_KEY_MOTION_M + motion, uid)
@@ -246,7 +281,6 @@ object AccountApplication extends Controller {
 			redis.zrem(REDIS_KEY_MOTION_F + id, uid)			
 		}
 
-
 		controllers.line.TraceApplication.updateOnline(uid)
 
 	  	Ok("")
@@ -293,6 +327,10 @@ object AccountApplication extends Controller {
 			redis.zrem(REDIS_KEY_MOTION_F + id, uid)
 		}
 
+		redis.zrem(REDIS_KEY_ACCOUNT, uid)
+		redis.zrem(REDIS_KEY_ACCOUNT_MAN, uid)
+		redis.zrem(REDIS_KEY_ACCOUNT_WOMEN, uid)
+
 		redis.hdel(REDIS_KEY_USER, uid)	
 
 	}
@@ -321,5 +359,124 @@ object AccountApplication extends Controller {
 	  Logger.debug("unregister gcm => userId:" + uid)
 	  redis.hdel(REDIS_KEY_GCM, uid)
 	  Ok("ok")
-	}		
+	}	
+
+
+// zrangeWithscores[R](key: String, start: Long, stop: Long)(implicit arg0: ByteStringDeserializer[R]): Future[Seq[(R, Double)]]
+	def generateAccount() {
+		val now = System.currentTimeMillis
+
+		redis.zrangeWithscores(REDIS_KEY_ACCOUNT, 0, now).map { e =>
+			e.map { data =>
+				val ts = data._2
+				val uid = data._1.utf8String
+
+				redis.hget(REDIS_KEY_USER, uid).map { user => //Option[R]]
+					if(user.isDefined) {
+						val jj = mapper.readTree(user.get.utf8String)
+						val s = jj.get("s").asText
+						if(s == "M") {
+							redis.zscore(REDIS_KEY_ACCOUNT_MAN, uid).map { ss => //Future[Option[Double]]
+								if(!ss.isDefined) {
+									redis.zadd(REDIS_KEY_ACCOUNT_MAN, (ts, uid))
+								}
+							}
+						} else if (s == "F") {
+							redis.zscore(REDIS_KEY_ACCOUNT_WOMEN, uid).map { ss => //Future[Option[Double]]
+								if(!ss.isDefined) {
+									redis.zadd(REDIS_KEY_ACCOUNT_WOMEN, (ts, uid))
+								}
+							}
+						} 					
+					}
+				}
+			}			
+		}
+
+		// ALL_INTERESTS_ID.foreach { id =>
+		// 	redis.zrangeWithscores(REDIS_KEY_INTEREST + id, 0, now).map { e =>//Seq[(R, Double)
+		// 		e.map { data =>
+		// 			val ts = data._2
+		// 			val uid = data._1.utf8String
+		// 			redis.zscore(REDIS_KEY_ACCOUNT, uid).map { ss => //Future[Option[Double]]
+		// 				if(!ss.isDefined) {
+		// 					redis.zadd(REDIS_KEY_ACCOUNT, (ts, uid))
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+
+		// ALL_PLACES_ID.foreach { id =>
+		// 	redis.zrangeWithscores(ALL_PLACES_ID + id, 0, now).map { e =>//Seq[(R, Double)
+		// 		e.map { data =>
+		// 			val ts = data._2
+		// 			val uid = data._1.utf8String
+		// 			redis.zscore(REDIS_KEY_ACCOUNT, uid).map { ss => //Future[Option[Double]]
+		// 				if(!ss.isDefined) {
+		// 					redis.zadd(REDIS_KEY_ACCOUNT, (ts, uid))
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+
+		// ALL_CAREERS_ID.foreach { id =>
+		// 	redis.zrangeWithscores(ALL_CAREERS_ID + id, 0, now).map { e =>//Seq[(R, Double)
+		// 		e.map { data =>
+		// 			val ts = data._2
+		// 			val uid = data._1.utf8String
+		// 			redis.zscore(REDIS_KEY_ACCOUNT, uid).map { ss => //Future[Option[Double]]
+		// 				if(!ss.isDefined) {
+		// 					redis.zadd(REDIS_KEY_ACCOUNT, (ts, uid))
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+		
+		// ALL_OLDS_ID.foreach { id =>
+		// 	redis.zrangeWithscores(ALL_OLDS_ID + id, 0, now).map { e =>//Seq[(R, Double)
+		// 		e.map { data =>
+		// 			val ts = data._2
+		// 			val uid = data._1.utf8String
+		// 			redis.zscore(REDIS_KEY_ACCOUNT, uid).map { ss => //Future[Option[Double]]
+		// 				if(!ss.isDefined) {
+		// 					redis.zadd(REDIS_KEY_ACCOUNT, (ts, uid))
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+
+		// ALL_CONSTELLATION_ID.foreach { id =>
+		// 	redis.zrangeWithscores(ALL_CONSTELLATION_ID + id, 0, now).map { e =>//Seq[(R, Double)
+		// 		e.map { data =>
+		// 			val ts = data._2
+		// 			val uid = data._1.utf8String
+		// 			redis.zscore(REDIS_KEY_ACCOUNT, uid).map { ss => //Future[Option[Double]]
+		// 				if(!ss.isDefined) {
+		// 					redis.zadd(REDIS_KEY_ACCOUNT, (ts, uid))
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }	
+		
+
+		// ALL_MOTION_ID.foreach { id =>
+		// 	redis.zrangeWithscores(ALL_MOTION_ID + id, 0, now).map { e =>//Seq[(R, Double)
+		// 		e.map { data =>
+		// 			val ts = data._2
+		// 			val uid = data._1.utf8String
+		// 			redis.zscore(REDIS_KEY_ACCOUNT, uid).map { ss => //Future[Option[Double]]
+		// 				if(!ss.isDefined) {
+		// 					redis.zadd(REDIS_KEY_ACCOUNT, (ts, uid))
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+
+	}	
 }

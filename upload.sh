@@ -1,1 +1,1 @@
-scp -i /Users/penny_weng/Documents/p/keystore/sdy.pem /Users/penny_weng/Documents/p/morefriend/target/universal/morefriend-1.0-SNAPSHOT.zip ubuntu@54.66.128.152:
+scp target/universal/morefriend-1.0-SNAPSHOT.zip Penny_Weng@104.199.143.166:/mnt/data/apps

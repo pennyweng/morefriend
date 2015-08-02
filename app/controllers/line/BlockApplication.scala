@@ -40,7 +40,8 @@ object BlockApplication extends Controller {
 	val blockUsers = ListBuffer[String]()
 	val blockLines = ListBuffer[String]()
 	val mapper = new ObjectMapper()
-	
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+		
 	def addBlockUser(uid : String, toUid: String) = Action {
 		Logger.info(s"addBlockUser uid:${uid}, toUid:${toUid}")
 		controllers.line.TraceApplication.updateOnline(uid)		

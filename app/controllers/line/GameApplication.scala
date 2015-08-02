@@ -29,6 +29,8 @@ object  GameApplication extends Controller {
 
 	val queue = new LinkedBlockingQueue[String]()
 	val mapper = new ObjectMapper()
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+		
 	val redis1 = RedisServer(REDIS_HOST, 6379)
 	val redis = RedisClientPool(List(redis1))
 
@@ -214,6 +216,47 @@ object  GameApplication extends Controller {
 	}
 
 	def rGuessGame() : String= {
+		Logger.info(s"resetGuessGame")
+
+		isGuessFinish = false
+		currentGuessGame = ""
+		// currentGuessGid = java.util.UUID.randomUUID.toString
+		// currentGuessWinNumber = {
+		// 	val max = INIT_BIG_NUMBER
+		// 	new java.util.Random().nextInt(max.toInt)
+		// }
+		// currentGuessGameSt = System.currentTimeMillis
+		// currentGuessBigNumber = INIT_BIG_NUMBER
+		// currentGuessSmallNumber = 0
+		// currentGuessGame = s"""{"gid":"${currentGuessGid}", 
+		// "name":"${GAME_GUESS_NAME}",
+		// "st":${currentGuessGameSt}, 
+		// "gtype":"${GAME_TYPE_GUESS}",
+		// "et":0,
+		// "introduction":"${GAME_GUESS_INTRO}", 
+		// "reward":"${GAME_GUESS_REWARD}", 
+		// "is_finish":false,
+		// "has_win":false,
+		// "winner":null}"""
+
+		// redis.set(REDIS_KEY_GAME_GUESS_BIG, currentGuessBigNumber)
+		// redis.set(REDIS_KEY_GAME_GUESS_SMALL, currentGuessSmallNumber)
+		// redis.set(REDIS_KEY_GAME_GUESS_CURRENT, currentGuessGid)
+		// redis.set(REDIS_KEY_GAME_GUESS_START_TIME, currentGuessGameSt)
+		// redis.hset(REDIS_KEY_GAME_WIN_NUMBER, currentGuessGid, currentGuessWinNumber)		
+		// redis.hset(REDIS_KEY_GAME_TOTALS, currentGuessGid, currentGuessGame)
+
+		// Logger.info(s"""current guess game currentGuessGid:${currentGuessGid},
+		// 	currentGuessWinNumber:${currentGuessWinNumber},
+		// 	currentGuessBigNumber:${currentGuessBigNumber}, 
+		// 	currentGuessSmallNumber:${currentGuessSmallNumber}, 
+		// 	isGuessFinish:${isGuessFinish},
+		// 	currentGuessGame:${currentGuessGame},
+		// 	currentGuessGameSt:${currentGuessGameSt} """)	
+		currentGuessGame			
+	}
+
+	def rGuessGame1() : String= {
 		Logger.info(s"resetGuessGame")
 
 		isGuessFinish = false

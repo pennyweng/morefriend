@@ -19,7 +19,7 @@ import scala.concurrent.Future
 
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.annotation._
-
+import com.fasterxml.jackson.core.JsonParser.Feature
 import scala.util.parsing.json.JSONFormat
 import scala.collection.mutable.ListBuffer
 import controllers.line.Constants._
@@ -39,17 +39,49 @@ case class ReportBagMessag(rmid : String, cts : String, postcode : String, addre
 }
 
 object AdminConsole extends Controller {
+	implicit val system = Akka.system
+	val mapper = new ObjectMapper()
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
 
-	def getLines(searchLid : String, searchStatus : Int) = {
+	val redis1 = RedisServer(REDIS_HOST, 6379)
+	val redis = RedisClientPool(List(redis1))
+
+
+	def updateReport() = {
+// 		val dd = s"""
+// {
+// 					"id":"dc3f1782-8d4c-435e-8ab3-11aab9edf41e_F8F77DE606B32B9AA19C52DC90BA3854BED784C4",
+// 					"uid":"F8F77DE606B32B9AA19C52DC90BA3854BED784C4",
+// 					"lid":"0952788726",
+// 					"lnick":"^Only^",
+// 					"lname":"BG MEN動動感謝祭",
+// 					"code":"dc341eF8F4C458",
+// 					"status":2,
+// 					"line_img":"https://sdl-stickershop.line.naver.jp/products/0/0/1/4326/LINEStorePC/thumbnail_shop.png",
+// 					"cts":1438258570952,
+// 					"mark":""
+// 				}
+// 		"""
+
+// 		redis.hset(REDIS_KEY_GIFT_REPORT_LINE, "dc3f1782-8d4c-435e-8ab3-11aab9edf41e_F8F77DE606B32B9AA19C52DC90BA3854BED784C4", dd)
+
+		// redis.hset(REDIS_KEY_GIFT_REPORT_LINE_TOPIC, "aef5fd2d-812e-490a-8534-301174bf4528_BDBB34D3D11B0C9BEF530E31559FAD17484959DC", dd)
+	}
+
+
+	def getLines(searchLid : String, searchStatus : Int, isLine : Boolean = true) = {
+		val (reportTable, giftTable)  = if(isLine) (REDIS_KEY_GIFT_REPORT_LINE, REDIS_KEY_GIFT_LINE)
+			else (REDIS_KEY_GIFT_REPORT_LINE_TOPIC, REDIS_KEY_GIFT_LINE_TOPIC)
+
 		val process1 = for {
-			all <- redis.hgetall(REDIS_KEY_GIFT_REPORT_LINE) //Future[Map[String, R]]
-			lineAll <- redis.hgetall(REDIS_KEY_GIFT_LINE)
+			all <- redis.hgetall(reportTable) //Future[Map[String, R]]
+			lineAll <- redis.hgetall(giftTable)
 		} yield {
 			all.flatMap { k =>
 				println("k:" + k._2.utf8String)
 				val jj = mapper.readTree(k._2.utf8String)
 				val status = jj.get("status").asInt
-				println("status:" + status)
+				// println("status:" + status)
 
 				// if(status == 1 || status == 2 || status == 3) {
 				val lgid = k._1.split("_")(0)
@@ -58,9 +90,18 @@ object AdminConsole extends Controller {
 					val linej = mapper.readTree(lineAll(lgid).utf8String)
 					val ssc = if(searchStatus == 1) 
 								List(1,2,3) 
-								else if(searchStatus == 2) 
+							  else if(searchStatus == 2)	
+							     List(1)
+							  else if(searchStatus == 3)
+							  	List(2)
+							  else if(searchStatus == 4)
+							  	List(3) 	   
+							  else if(searchStatus == 5) 
 								List(4) 
-								else List(1,2,3,4,5)
+							  else if(searchStatus == 7) 
+								List(5) 
+							else List(1,2,3,4,5)
+
 
 					if(searchLid != "" && jj.get("lid").asText != searchLid) None
 					else if(!ssc.contains(status)) None
@@ -91,6 +132,12 @@ object AdminConsole extends Controller {
 			}.toArray
 			scala.util.Sorting.quickSort(ss)
 			ss
+		}
+	}
+
+	def indexLineTopic(searchLid : String, searchStatus : Int) = Action.async {
+		getLines(searchLid, searchStatus, false).map { ss =>
+			Ok(views.html.admin_index_topic(ss, searchLid, searchStatus))
 		}
 	}
 
@@ -130,10 +177,25 @@ object AdminConsole extends Controller {
 				val lgid = k._1.split("_")(0)
 				val uid = k._1.split("_")(1) 
 				val linej = mapper.readTree(lineAll(lgid).utf8String)
-				val ssc = if(searchStatus == 1) 
-							List(1,2,3) 
-							else if(searchStatus == 2) 
-							List(4) 
+				// val ssc = if(searchStatus == 1) 
+				// 			List(1,2,3) 
+				// 			else if(searchStatus == 2) 
+				// 			List(4) 
+				// 			else List(1,2,3,4,5)
+
+
+					val ssc = if(searchStatus == 1) 
+								List(1,2,3) 
+							  else if(searchStatus == 2)	
+							     List(1)
+							  else if(searchStatus == 3)
+							  	List(2)
+							  else if(searchStatus == 4)
+							  	List(3) 	   
+							  else if(searchStatus == 5) 
+								List(4) 
+								 else if(searchStatus == 7) 
+								List(5) 
 							else List(1,2,3,4,5)
 
 				if(searchName != "" && jj.get("account").asText != searchName) None
@@ -183,10 +245,24 @@ object AdminConsole extends Controller {
 				val lgid = k._1.split("_")(0)
 				val uid = k._1.split("_")(1) 
 				val linej = mapper.readTree(lineAll(lgid).utf8String)
-				val ssc = if(searchStatus == 1) 
-							List(1,2,3) 
-							else if(searchStatus == 2) 
-							List(4) 
+				// val ssc = if(searchStatus == 1) 
+				// 			List(1,2,3) 
+				// 			else if(searchStatus == 2) 
+				// 			List(4) 
+				// 			else List(1,2,3,4,5)
+
+					val ssc = if(searchStatus == 1) 
+								List(1,2,3) 
+							  else if(searchStatus == 2)	
+							     List(1)
+							  else if(searchStatus == 3)
+							  	List(2)
+							  else if(searchStatus == 4)
+							  	List(3) 	   
+							  else if(searchStatus == 5) 
+								List(4) 
+								 else if(searchStatus == 7) 
+								List(5) 
 							else List(1,2,3,4,5)
 
 				if(searchName != "" && jj.get("account").asText != searchName) None
@@ -233,12 +309,27 @@ object AdminConsole extends Controller {
 				val lgid = k._1.split("_")(0)
 				val uid = k._1.split("_")(1) 
 				val linej = mapper.readTree(lineAll(lgid).utf8String)
-				val ssc = if(searchStatus == 1) 
-							List(1,2,3) 
-							else if(searchStatus == 2) 
-							List(4) 
-							else List(1,2,3,4,5)
+				// val ssc = if(searchStatus == 1) 
+				// 			List(1,2,3) 
+				// 			else if(searchStatus == 2) 
+				// 			List(4) 
+				// 			else List(1,2,3,4,5)
 
+
+					val ssc = if(searchStatus == 1) 
+								List(1,2,3) 
+							  else if(searchStatus == 2)	
+							     List(1)
+							  else if(searchStatus == 3)
+							  	List(2)
+							  else if(searchStatus == 4)
+							  	List(3) 	   
+							  else if(searchStatus == 5) 
+								List(4) 
+								 else if(searchStatus == 7) 
+								List(5) 
+							else List(1,2,3,4,5)
+							
 				if(searchName != "" && jj.get("account_name").asText != searchName) None
 				else if(!ssc.contains(status)) None
 				else
@@ -293,15 +384,15 @@ object AdminConsole extends Controller {
 		val searchName = body.get("searchName").getOrElse(List(""))(0)
 		val searchStatus = body.get("searchStatus").getOrElse(List("1"))(0).toInt
 
-		if(status == 5) {
-			for {
-				k1 <- redis.hdel(REDIS_KEY_GIFT_REPORT_BAG, id)
-				k2 <- redis.hdel(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
-				ss <- getBag(searchName, searchStatus)				
-			} yield { 
-				Ok(views.html.admin_bag_index(ss, searchName, searchStatus))
-			}
-		} else {
+		// if(status == 5) {
+		// 	for {
+		// 		k1 <- redis.hdel(REDIS_KEY_GIFT_REPORT_BAG, id)
+		// 		k2 <- redis.hdel(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
+		// 		ss <- getBag(searchName, searchStatus)				
+		// 	} yield { 
+		// 		Ok(views.html.admin_bag_index(ss, searchName, searchStatus))
+		// 	}
+		// } else {
 			val k1 = for {
 				rm <- redis.hget(REDIS_KEY_GIFT_REPORT_BAG, id)
 				ms <- redis.hget(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
@@ -344,7 +435,7 @@ object AdminConsole extends Controller {
 				Ok(views.html.admin_bag_index(ss, searchName, searchStatus))
 			}
 
-		}
+		// }
 
 	}
 
@@ -370,15 +461,15 @@ object AdminConsole extends Controller {
 		val searchName = body.get("searchName").getOrElse(List(""))(0)
 		val searchStatus = body.get("searchStatus").getOrElse(List("1"))(0).toInt
 
-		if(status == 5) {
-			for {
-				k1 <- redis.hdel(REDIS_KEY_GIFT_REPORT_MONEY, id)
-				k2 <- redis.hdel(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
-				ss <- getMoney(searchName, searchStatus)				
-			} yield { 
-				Ok(views.html.admin_money_index(ss, searchName, searchStatus))
-			}
-		} else {
+		// if(status == 5) {
+		// 	for {
+		// 		k1 <- redis.hdel(REDIS_KEY_GIFT_REPORT_MONEY, id)
+		// 		k2 <- redis.hdel(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
+		// 		ss <- getMoney(searchName, searchStatus)				
+		// 	} yield { 
+		// 		Ok(views.html.admin_money_index(ss, searchName, searchStatus))
+		// 	}
+		// } else {
 			val k1 = for {
 				rm <- redis.hget(REDIS_KEY_GIFT_REPORT_MONEY, id)
 				ms <- redis.hget(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
@@ -421,14 +512,15 @@ object AdminConsole extends Controller {
 				Ok(views.html.admin_money_index(ss, searchName, searchStatus))
 			}
 
-		}
+		// }
 
 	}
 
 
-	def update() = Action.async { request =>
+	def update(isLine : Boolean = true) = Action.async { request =>
+		val reportTable = if(isLine) REDIS_KEY_GIFT_REPORT_LINE else REDIS_KEY_GIFT_REPORT_LINE_TOPIC
+
 		val body = request.body.asFormUrlEncoded.get
-		// body:Map(updatebt -> List(修改), id -> List(96ca3066-ed54-4a94-aecb-85b955edd6a1_50DE4E8F8F8476D79DA9C3CA264357F9B9B52E9F), status -> List(1), mark -> List(), magmsg -> List())
 		println("body:" + body)
 
 		val id = body("id")(0)
@@ -447,53 +539,47 @@ object AdminConsole extends Controller {
 		val searchLid = body.get("searchLid").getOrElse(List(""))(0)
 		val searchStatus = body.get("searchStatus").getOrElse(List("1"))(0).toInt
 
-		if(status == 5) {
-			for {
-				k1 <- redis.hdel(REDIS_KEY_GIFT_REPORT_LINE, id)
-				k2 <- redis.hdel(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
-				ss <- getLines(searchLid, searchStatus)				
-			} yield { 
-				Ok(views.html.admin_index(ss, searchLid, searchStatus))
-			}
-		} else {
-			val k1 = for {
-				rm <- redis.hget(REDIS_KEY_GIFT_REPORT_LINE, id)
-				ms <- redis.hget(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
-			} yield {
-				if(rm.isDefined) {
-					val jj = mapper.readTree(rm.get.utf8String)
-					val existMsg = if(ms.isDefined)
-						mapper.readValue[Array[LeaveMsg]](ms.get.utf8String, classOf[Array[LeaveMsg]])
-					else Array[LeaveMsg]()
+		val k1 = for {
+			rm <- redis.hget(reportTable, id)
+			ms <- redis.hget(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
+		} yield {
+			if(rm.isDefined) {
+				val jj = mapper.readTree(rm.get.utf8String)
+				val existMsg = if(ms.isDefined)
+					mapper.readValue[Array[LeaveMsg]](ms.get.utf8String, classOf[Array[LeaveMsg]])
+				else Array[LeaveMsg]()
 
-					if(leaveMsg != "") {
-						val lmsg = LeaveMsg(leaveMsg, System.currentTimeMillis, 0)
-						val newLms = Array(lmsg) ++ existMsg
-						redis.hset(REDIS_KEY_GIFT_REPORT_LINE_MSG, id, mapper.writeValueAsString(newLms))
-					}
-
-					val result = s"""{
-						"id":"${id}",
-						"uid":"${jj.get("uid").asText}",
-						"lid":"${jj.get("lid").asText}",
-						"lnick":"${jj.get("lnick").asText}",
-						"lname":"${jj.get("lname").asText}",
-						"code":"${jj.get("code").asText}",
-						"status":${status},
-						"line_img":"${jj.get("line_img").asText}",
-						"cts":${jj.get("cts").asLong},
-						"mark":"${mark}"
-					}"""
-
-					redis.hset(REDIS_KEY_GIFT_REPORT_LINE, id, result)				
+				if(leaveMsg != "") {
+					val lmsg = LeaveMsg(leaveMsg, System.currentTimeMillis, 0)
+					val newLms = Array(lmsg) ++ existMsg
+					redis.hset(REDIS_KEY_GIFT_REPORT_LINE_MSG, id, mapper.writeValueAsString(newLms))
 				}
+
+				val result = s"""{
+					"id":"${id}",
+					"uid":"${jj.get("uid").asText}",
+					"lid":"${jj.get("lid").asText}",
+					"lnick":"${jj.get("lnick").asText}",
+					"lname":"${jj.get("lname").asText}",
+					"code":"${jj.get("code").asText}",
+					"status":${status},
+					"line_img":"${jj.get("line_img").asText}",
+					"cts":${jj.get("cts").asLong},
+					"mark":"${mark}"
+				}"""
+
+				redis.hset(reportTable, id, result)				
 			}
-			for {
-				kk <- k1
-				ss <- getLines(searchLid, searchStatus)				
-			} yield { 
+		}
+		for {
+			kk <- k1
+			ss <- if(isLine) getLines(searchLid, searchStatus, true) 
+			else getLines(searchLid, searchStatus, false)			
+		} yield { 
+			if(isLine)
 				Ok(views.html.admin_index(ss, searchLid, searchStatus))
-			}
+			else 
+				Ok(views.html.admin_index_topic(ss, searchLid, searchStatus))
 		}
 	}
 
@@ -518,15 +604,15 @@ object AdminConsole extends Controller {
 		val searchName = body.get("searchName").getOrElse(List(""))(0)
 		val searchStatus = body.get("searchStatus").getOrElse(List("1"))(0).toInt
 
-		if(status == 5) {
-			for {
-				k1 <- redis.hdel(REDIS_KEY_GIFT_REPORT_SE, id)
-				k2 <- redis.hdel(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
-				ss <- getSe(searchName, searchStatus)				
-			} yield { 
-				Ok(views.html.admin_se_index(ss, searchName, searchStatus))
-			}
-		} else {
+		// if(status == 5) {
+		// 	for {
+		// 		k1 <- redis.hdel(REDIS_KEY_GIFT_REPORT_SE, id)
+		// 		k2 <- redis.hdel(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
+		// 		ss <- getSe(searchName, searchStatus)				
+		// 	} yield { 
+		// 		Ok(views.html.admin_se_index(ss, searchName, searchStatus))
+		// 	}
+		// } else {
 			val k1 = for {
 				rm <- redis.hget(REDIS_KEY_GIFT_REPORT_SE, id)
 				ms <- redis.hget(REDIS_KEY_GIFT_REPORT_LINE_MSG, id)
@@ -572,6 +658,6 @@ object AdminConsole extends Controller {
 
 		}
 
-	}
+	// }
 
 }

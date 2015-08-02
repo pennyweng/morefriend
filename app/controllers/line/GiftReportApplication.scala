@@ -27,12 +27,14 @@ import controllers.line.TraceApplication._
 
 
 case class  LeaveMsg @JsonCreator() ( 
-	@scala.reflect.BeanProperty @JsonProperty("msg") msg : String, 
-	@scala.reflect.BeanProperty @JsonProperty("ts") ts : Long, 
-	@scala.reflect.BeanProperty @JsonProperty("from") from : Int)
+	@scala.beans.BeanProperty @JsonProperty("msg") msg : String, 
+	@scala.beans.BeanProperty @JsonProperty("ts") ts : Long, 
+	@scala.beans.BeanProperty @JsonProperty("from") from : Int)
 
 object GiftReportApplication extends Controller {
 	val mapper = new ObjectMapper()
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+		
 	val redis = GiftApplication.redis
 
 	def reportLineMsg(lgid : String, uid : String, msg : String) = Action.async {
@@ -83,12 +85,11 @@ object GiftReportApplication extends Controller {
 				Ok("err:5")
 			} else {
 				val jj = mapper.readTree(kk.get.utf8String)
-
 				val result = s"""{
 					"id":"${key}",
 					"uid":"${uid}",
-					"lid":"${lid}",
-					"lnick":"${lnick}",
+					"lid":"${JSONFormat.quoteString(lid)}",
+					"lnick":"${JSONFormat.quoteString(lnick)}",
 					"lname":"${jj.get("name").asText}",
 					"code":"${code}",
 					"status":1,
@@ -102,6 +103,45 @@ object GiftReportApplication extends Controller {
 		}
 	}
 
+ 	def reportLineTopic(lgid : String, uid : String, lid : String, lnick: String, lname: String, code : String) = Action.async {
+ 		val key = lgid + "_" + uid
+
+		for {
+			s1 <- redis.smembers(REDIS_KEY_GIFT_LINE_TOPIC_ACHIVE + uid) //Future[Seq[R]]
+			isE <- redis.hexists(REDIS_KEY_GIFT_REPORT_LINE_TOPIC, key)
+			code1 <- redis.hget(REDIS_KEY_GIFT_CODE_KEY, key)
+			kk <- redis.hget(REDIS_KEY_GIFT_LINE_TOPIC, lgid)
+		} yield {
+			val achived = s1.map { _.utf8String }.toList
+			if(!achived.contains(lgid)) {
+				Ok("err:1")
+			} else if(isE) {
+				Ok("err:2")
+			} else if(lid == "" || lname == "") {
+				Ok("err:3")
+			} else if(!code1.isDefined || (code1.isDefined && code1.get.utf8String != code)) {
+				Ok("err:4")
+			} else if(!kk.isDefined) {
+				Ok("err:5")
+			} else {
+				val jj = mapper.readTree(kk.get.utf8String)
+				val result = s"""{
+					"id":"${key}",
+					"uid":"${uid}",
+					"lid":"${JSONFormat.quoteString(lid)}",
+					"lnick":"${JSONFormat.quoteString(lnick)}",
+					"lname":"${jj.get("name").asText}",
+					"code":"${code}",
+					"status":1,
+					"line_img":"${jj.get("img").asText}",
+					"cts":${System.currentTimeMillis},
+					"mark":""
+				}"""
+				redis.hset(REDIS_KEY_GIFT_REPORT_LINE_TOPIC, key, result)
+				Ok("")
+			}
+		}
+	}
 
  	def reportMoney(lgid : String, uid : String, bankName : String, bankCode: String, account: String, accountName : String, code : String) = Action.async {
  		val key = lgid + "_" + uid

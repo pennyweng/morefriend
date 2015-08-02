@@ -26,6 +26,8 @@ import controllers.line.Constants._
 object TraceApplication extends Controller {
 	implicit val system = Akka.system
 	val mapper = new ObjectMapper()
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+		
 	val chatPath = "./chat"
 
 	val redis1 = RedisServer(REDIS_HOST, 6379)

@@ -38,6 +38,8 @@ object LuckyApplication extends Controller {
 	val NEXT_TIME = 3600000 * 6l
 	val MAX_COUNT = 3
 	val mapper = new ObjectMapper()
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+		
 	val redis = RedisClient(REDIS_HOST, 6379)	
 
 	def getNextTime(uid :String, lkid : String) = Action.async {
@@ -203,37 +205,5 @@ object LuckyApplication extends Controller {
 		}
 	}
 
-// [
-//     {
-//         "pkg": "com.htc.app1"
-//     },
-//     {
-//         "pkg": "com.htc.app2"
-//     },
-//     {
-//         "pkg": "com.htc.app3"
-//     }
-// ]
-	// def getMFU() = Action { request =>
-	// 	Logger.info(s"getMFU ")
-	// 	try {
-	// 		val data = request.body.asText.getOrElse("[]")
-	// 		val jj = mapper.readTree(data)
-	// 		val ss = jj.elements.toArray.map { kk =>
-	// 			(new Random().nextInt(1000), kk)
-	// 		}.toArray
-	// 		scala.util.Sorting.quickSort(ss)
-
-	// 		val appResult = 
-	// 			modes.map { mode =>
-	// 				val dd = (mode - 1) * 8
-	// 				s"""{"mode":${mode}, "apps":${vv.drop(dd).take(8).map{ _._2.toString }.mkString("[",",","]")}}"""
-	// 			}.mkString("[",",","]")
-
-	// 		Ok(s"""{"res":${appResult}}""")	
-	// 	} catch {
-	// 		case e : Throwable => println(e.printStackTrace)
-	// 		Ok(s"""{"rec":[]}""")
-	// 	}	
-	// }	
+	
 }

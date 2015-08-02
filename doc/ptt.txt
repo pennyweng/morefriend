@@ -1,0 +1,269 @@
+[
+    {
+        "n": "Gossiping",
+        "lb": "八卦 - Gossiping",
+        "agr": 1
+    },
+    {
+        "n": "NBA",
+        "lb": "NBA",
+        "agr": 0
+    },
+    {
+        "n": "LoL",
+        "lb": "LoL",
+        "agr": 0
+    },
+    {
+        "n": "WomenTalk",
+        "lb": "女孩 - WomenTalk",
+        "agr": 0
+    },
+    {
+        "n": "Baseball",
+        "lb": "棒球 - Baseball",
+        "agr": 0
+    },
+    {
+        "n": "PuzzleDragon",
+        "lb": "龍拼 - PuzzleDragon",
+        "agr": 0
+    },
+    {
+        "n": "movie",
+        "lb": "電影 - movie",
+        "agr": 0
+    },
+    {
+        "n": "C_Chat",
+        "lb": "希洽 - C_Chat",
+        "agr": 0
+    },
+    {
+        "n": "Stock",
+        "lb": "股票 - Stock",
+        "agr": 0
+    },
+    {
+        "n": "Boy-Girl",
+        "lb": "男女 - Boy-Girl",
+        "agr": 0
+    },
+    {
+        "n": "ToS",
+        "lb": "神魔 - ToS",
+        "agr": 0
+    },
+    {
+        "n": "joke",
+        "lb": "笑話 - joke",
+        "agr": 0
+    },
+    {
+        "n": "Tech_Job",
+        "lb": "科技 - Tech_Job",
+        "agr": 0
+    },
+    {
+        "n": "MobileComm",
+        "lb": "行動通訊",
+        "agr": 0
+    },
+    {
+        "n": "Japan_Travel",
+        "lb": "日本旅遊",
+        "agr": 0
+    },
+    {
+        "n": "BabyMother",
+        "lb": "媽寶 - BabyMother",
+        "agr": 0
+    },
+    {
+        "n": "KR_Entertain",
+        "lb": "韓綜 - KR_Entertain",
+        "agr": 0
+    },
+    {
+        "n": "marvel",
+        "lb": "marvel",
+        "agr": 0
+    },
+    {
+        "n": "Beauty",
+        "lb": "表特 - Beauty",
+        "agr": 0
+    },
+    {
+        "n": "BuyTogether",
+        "lb": "合購 - BuyTogether",
+        "agr": 0
+    },
+    {
+        "n": "NBA_Film",
+        "lb": "NBA_Film",
+        "agr": 0
+    },
+    {
+        "n": "StupidClown",
+        "lb": "笨板 - StupidClown",
+        "agr": 0
+    },
+    {
+        "n": "Hearthstone",
+        "lb": "笨板 - StupidClown",
+        "agr": 0
+    },
+    {
+        "n": "DIABLO",
+        "agr": 0
+    },
+    {
+        "n": "marriage",
+        "agr": 0
+    },
+    {
+        "n": "car",
+        "agr": 0
+    },
+    {
+        "n": "gay",
+        "agr": 0
+    },
+    {
+        "n": "AllTogether",
+        "agr": 0
+    },
+    {
+        "n": "e-shopping",
+        "agr": 0
+    },
+    {
+        "n": "Tainan",
+        "agr": 0
+    },
+    {
+        "n": "MakeUp",
+        "agr": 0
+    },
+    {
+        "n": "KanColle",
+        "agr": 0
+    },
+    {
+        "n": "SportLottery",
+        "agr": 1
+    },
+    {
+        "n": "HatePolitics",
+        "agr": 0
+    },
+    {
+        "n": "Elephants",
+        "agr": 0
+    },
+    {
+        "n": "Lifeismoney",
+        "agr": 0
+    },
+    {
+        "n": "Japandrama",
+        "agr": 0
+    },
+    {
+        "n": "home-sale",
+        "agr": 0
+    },
+    {
+        "n": "MLB",
+        "agr": 0
+    },
+    {
+        "n": "GetMarry",
+        "agr": 0
+    },
+    {
+        "n": "KoreaDrama",
+        "agr": 0
+    },
+    {
+        "n": "PlayStation",
+        "agr": 0
+    },
+    {
+        "n": "EAseries",
+        "agr": 0
+    },
+    {
+        "n": "Salary",
+        "agr": 0
+    },
+    {
+        "n": "Wanted",
+        "agr": 0
+    },
+    {
+        "n": "iPhone",
+        "agr": 0
+    },
+    {
+        "n": "FCBarcelona",
+        "agr": 0
+    },
+    {
+        "n": "Food",
+        "agr": 0
+    },
+    {
+        "n": "PC_Shopping",
+        "agr": 0
+    },
+    {
+        "n": "BeautySalon",
+        "agr": 0
+    },
+    {
+        "n": "MenTalk",
+        "agr": 0
+    },
+    {
+        "n": "Steam",
+        "agr": 0
+    },
+    {
+        "n": "Aviation",
+        "agr": 0
+    },
+    {
+        "n": "studyteacher",
+        "agr": 0
+    },
+    {
+        "n": "MuscleBeach",
+        "agr": 0
+    },
+    {
+        "n": "creditcard",
+        "agr": 0
+    },
+    {
+        "n": "TaichungBun",
+        "agr": 0
+    },
+    {
+        "n": "mobilesales",
+        "agr": 0
+    },
+    {
+        "n": "Hsinchu",
+        "agr": 0
+    },
+    {
+        "n": "lesbian",
+        "agr": 0
+    },
+    {
+        "n": "Examination",
+        "agr": 0
+    }
+]

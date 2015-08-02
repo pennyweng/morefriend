@@ -1,5 +1,9 @@
-@(msgs: Array[controllers.line.ReportMoneyMessag], searchName : String = "", searchStatus : Int = 1)
+@(msgs: Array[controllers.line.ReportMessag], searchLid : String = "", searchStatus : Int = 1)
 
+            @imageLink(s: String) = @{
+              val ii = s.split("/")
+              "https://store.line.me/themeshop/product/" + ii(9) + "/zh-Hant"
+            }
 
 <!DOCTYPE html>
 <html lang="en">
@@ -34,17 +38,25 @@ th, td {
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="@routes.Assets.at("js/bootstrap.min.js")"></script>
+    <script>
+      function clearFields() {
+        var ee = document.getElementById('searchid');
+        ee.value = ''
+      }
+      </script>
 
     <div class="container-fluid">
-<a href="/linefriend/admin/console">送貼圖 </a>
-<a href="/linefriend/admin/topic/console">送主題 </a>
-<a href="/linefriend/admin/money/console">送現金 </a><a href="/linefriend/admin/bag/console">送刮刮樂 </a><a href="/linefriend/admin/se/console">送商品 </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+      <a href="/linefriend/admin/console">送貼圖 </a>
+      <a href="/linefriend/admin/topic/console">送主題 </a>
+      <a href="/linefriend/admin/money/console">送現金 </a>
+      <a href="/linefriend/admin/money/console">送現金 </a><a href="/linefriend/admin/bag/console">送刮刮樂 </a><a href="/linefriend/admin/se/console">送商品 </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <a href="/linefriend/admin/queue/list?giftType=FR_LINE">放行貼圖 </a><a href="/linefriend/admin/queue/list?giftType=FR_MONY">放行現金 </a><a href="/linefriend/admin/queue/list?giftType=BAG">放行刮刮樂 </a><a href="/linefriend/admin/queue/list?giftType=SE">放行商品 </a>
-      <h1 class="blog-title">分類交友後臺管理系統-送現金</h1>
+
+      <h1 class="blog-title">分類交友後臺管理系統-送主題</h1>
       <div>
-        <form id="searchform" action="/linefriend/admin/money/console" method="GET">
-          戶名:<input form="searchform" type="text" name="searchName" value=@searchName>
-          
+        <form id="searchform" action="/linefriend/admin/topic/console" method="GET">
+          LINE ID:<input form="searchform" type="text" id= "searchid" name="searchLid" value=@searchLid>
+ <input type="button" value="清除" onclick="clearFields(this)">         
           狀態:<select name="searchStatus" form="searchform">
           @if(searchStatus == 1) {
             <option value="1" selected >尚未完成(審核中, 核對完成, 有問題)</option>
@@ -79,12 +91,13 @@ th, td {
             <option value="7" selected >刪除</option>
           } else {
             <option value="7" >刪除</option>
-          }  
+          }          
           @if(searchStatus == 6) {
             <option value="6" selected >全部</option>
           } else {
             <option value="6" >全部</option>
           }
+
         </select>
         <input form="searchform" type="submit" name="searchbt" value="查詢"/>
         </form>
@@ -94,11 +107,9 @@ th, td {
       <table style="width:100%">
         <tr>
           <th>申請時間</th>
-          <th>銀行名稱</th>
-          <th>銀行代碼</th>
-          <th>銀行帳號</th>
-          <th>戶名</th>
-          <th>獎勵名稱</th>
+          <th>LINE暱稱</th>
+          <th>LINE ID</th>
+          <th>貼圖名稱</th>
           <th>驗證碼</th>
           <th>全部留言</th>
           <th>狀態</th>
@@ -107,8 +118,8 @@ th, td {
         </tr>
         @for(msg <- msgs) {
         <tr>
-          <td><form id="form@msg.rmid" action="/linefriend/admin/money/console/update" method="POST"><input type="hidden" name="id" value="@msg.rmid" />
-            <input form="form@msg.rmid" type="hidden" name="searchName" value=@searchName>
+          <td><form id="form@msg.rmid" action="/linefriend/admin/topic/console/update" method="POST"><input type="hidden" name="id" value="@msg.rmid" />
+            <input form="form@msg.rmid" type="hidden" name="searchLid" value=@searchLid>
             <input form="form@msg.rmid" type="hidden" name="searchStatus" value=@searchStatus>
           </form>
           @defining(new java.text.SimpleDateFormat("MM/dd hh:mm")) { sf1 =>
@@ -117,14 +128,13 @@ th, td {
               }
           }
           </td>
-          <td>@msg.bank_name</td>
-          <td>@msg.bank_code</td>
-          <td>@msg.account</td>
-          <td>@msg.account_name</td>
+          <td>@msg.lnick</td>
+          <td>@msg.lid</td>
           <td>
-            <img src="@msg.lineImg" height="50" width="50">
+
+            <a href="#" onClick="window.open('@imageLink(msg.lineImg)', '_blank')"><img src="@msg.lineImg" height="50" width="50">
             @msg.lname
-            
+            </a>
           </td>
           <td>@msg.code</td>
           <td>

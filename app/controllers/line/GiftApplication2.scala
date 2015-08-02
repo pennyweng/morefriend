@@ -34,6 +34,8 @@ object GiftApplication2 extends Controller {
 	val reportStartTime = 0l;
 
 	val mapper = new ObjectMapper()
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+
 	val NEXT_TIME = 4000000 * 1l
 	val MAX_SHOW = 500
 	// val MAX_HIT_COUNT = 10
@@ -56,6 +58,18 @@ object GiftApplication2 extends Controller {
 		val data = body.asText.getOrElse("")
 		val ff = mapper.readTree(data)
 		val id = java.util.UUID.randomUUID.toString
+		// val result = s"""{
+		// 	"id":"${id}",
+		// 	"base_money":${ff.get("base_money").asInt},
+		// 	"type":"FR_SE",
+		// 	"name":"${ff.get("name").asText}",
+		// 	"max_count":${ff.get("max_count").asInt},
+		// 	"img":"${ff.get("img").asText}",
+		// 	"position":${ff.get("position").asInt},
+		// 	"ct":${System.currentTimeMillis},
+		// 	"max_ncount":${2 * ff.get("max_count").asInt}
+		// }"""
+
 		val result = s"""{
 			"id":"${id}",
 			"base_money":${ff.get("base_money").asInt},
@@ -65,8 +79,9 @@ object GiftApplication2 extends Controller {
 			"img":"${ff.get("img").asText}",
 			"position":${ff.get("position").asInt},
 			"ct":${System.currentTimeMillis},
-			"max_ncount":${2 * ff.get("max_count").asInt}
-		}"""
+			"max_ncount":${ff.get("max_ncount").asInt},
+			"point":${ff.get("point").asInt}
+		}"""		
 		redis.hset(REDIS_KEY_GIFT_SE, id, result)
 
 		Ok(result)		
@@ -110,7 +125,7 @@ object GiftApplication2 extends Controller {
 					}
 				redis.hset(REDIS_KEY_GIFT_SE_CHECK_TIME + lgid, uid, now)
 				redis.hset(REDIS_KEY_GIFT_SE_PLAY_COUNT, lgid + "_" + uid, sd.toString)
-				val nextPlay = now + 3600000l * 3 + 60000l * new Random().nextInt(120)
+				val nextPlay = now + 3600000l * 2 + 60000l * new Random().nextInt(120)
 				redis.hset(REDIS_KEY_GIFT_SE_NEW_CHECK_TIME, uid, nextPlay)
 
 
@@ -303,6 +318,7 @@ object GiftApplication2 extends Controller {
 			redis.hmget(REDIS_KEY_GIFT_REPORT_LINE_MSG, keys : _*).map { ss => // Future[Seq[Option[R]]]
 				keys.zip(ss).map { k => 
 					if(k._2.isDefined) {
+						println("aa:" + k._2.get.utf8String)
 						val lms = mapper.readValue[Array[LeaveMsg]](k._2.get.utf8String, classOf[Array[LeaveMsg]])
 						(k._1, lms.length) 
 					}
@@ -312,7 +328,7 @@ object GiftApplication2 extends Controller {
 
 	// -1 now show, 0: show
 	def getAchived(uid : String) = Action.async {
-		val lastDisplayTime = System.currentTimeMillis - (21 * 86400000l)
+		val lastDisplayTime = System.currentTimeMillis - (14 * 86400000l)
 
 		val lineAchived = for {
 			s1 <- redis.smembers(REDIS_KEY_GIFT_LINE_ACHIVE + uid) //Future[Seq[R]]
@@ -328,18 +344,22 @@ object GiftApplication2 extends Controller {
 			val tTime = v3.toMap
 
 			s1.map { _.utf8String }.flatMap { archiveId =>
-				val k = (archiveId, all(archiveId))
-				val jj = mapper.readTree(k._2.utf8String)
-				val llkey = k._1 + "_" + uid
-				val lastPlayTime = tTime(llkey).toLong
-				val code = k._1.substring(0,CODE_COUNT) + "_" +  uid.substring(0,CODE_COUNT) + ranCount(llkey)
-				val newCode = codeCount(llkey)
+				if(all.contains(archiveId)) {
+					val k = (archiveId, all(archiveId))
+					val jj = mapper.readTree(k._2.utf8String)
+					val llkey = k._1 + "_" + uid
+					val lastPlayTime = tTime(llkey).toLong
+					val code = k._1.substring(0,CODE_COUNT) + "_" +  uid.substring(0,CODE_COUNT) + ranCount(llkey)
+					val newCode = codeCount(llkey)
 
-				if(lastPlayTime < lastDisplayTime) None 
-				else if(lastPlayTime < reportStartTime) {
-					Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}","status":-1}"""))
-				} else 
-					Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}","status":${statuss(llkey)},"leave_msg_count":${msgCount(llkey)} }"""))
+					if(lastPlayTime < lastDisplayTime) None 
+					else if(lastPlayTime < reportStartTime)
+						Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}","status":-1}"""))
+					else if(statuss.contains(llkey) && statuss(llkey) == 5) None 
+					else {
+						Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}","status":${statuss(llkey)},"leave_msg_count":${msgCount(llkey)} }"""))
+					}
+				} else None
 			}.toArray
 		}
 
@@ -356,7 +376,8 @@ object GiftApplication2 extends Controller {
 		} yield {
 			val tTime = v3.toMap
 			s1.map { _.utf8String }.flatMap { archiveId =>
-				val k = (archiveId, all(archiveId))
+				if(all.contains(archiveId)) {
+					val k = (archiveId, all(archiveId))
 					val jj = mapper.readTree(k._2.utf8String)
 					val llkey = k._1 + "_" + uid
 					val currentCount = kCount(llkey).toInt	
@@ -367,9 +388,11 @@ object GiftApplication2 extends Controller {
 					if(lastPlayTime < lastDisplayTime) None 
 					else if(lastPlayTime < reportStartTime) 
 						Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${currentCount},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}"}"""))
+					else if(statuss.contains(llkey) && statuss(llkey) == 5) None 
 					else 
 						Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${currentCount},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}","status":${statuss(llkey)},"leave_msg_count":${msgCount(llkey)} }"""))					
-				}.toArray
+				} else None
+			}.toArray
 		}
 
 		val bagAchived = for {
@@ -386,19 +409,22 @@ object GiftApplication2 extends Controller {
 			val tTime = v3.toMap
 
 			s1.map { _.utf8String }.flatMap { archiveId =>
-				val k = (archiveId, all(archiveId))
-				val jj = mapper.readTree(k._2.utf8String)
-				val llkey = k._1 + "_" + uid
-				val lastPlayTime = tTime(llkey).toLong
-				val code = k._1.substring(0,CODE_COUNT) + "_" +  uid.substring(0,CODE_COUNT) + ranCount(llkey)
-				val newCode = codeCount(llkey)
+				if(all.contains(archiveId)) {
+					val k = (archiveId, all(archiveId))
+					val jj = mapper.readTree(k._2.utf8String)
+					val llkey = k._1 + "_" + uid
+					val lastPlayTime = tTime(llkey).toLong
+					val code = k._1.substring(0,CODE_COUNT) + "_" +  uid.substring(0,CODE_COUNT) + ranCount(llkey)
+					val newCode = codeCount(llkey)
 
 
-				if(lastPlayTime < lastDisplayTime) None 
-				else if(lastPlayTime < reportStartTime) 
-				Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}"}"""))
-				else 
-				Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}","status":${statuss(llkey)},"leave_msg_count":${msgCount(llkey)} }"""))
+					if(lastPlayTime < lastDisplayTime) None 
+					else if(lastPlayTime < reportStartTime) 
+					Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}"}"""))
+					else if(statuss.contains(llkey) && statuss(llkey) == 5) None 
+					else 
+					Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}","status":${statuss(llkey)},"leave_msg_count":${msgCount(llkey)} }"""))
+				} else None
 			}.toArray
 		}
 
@@ -416,18 +442,21 @@ object GiftApplication2 extends Controller {
 			val tTime = v3.toMap
 
 			s1.map { _.utf8String }.flatMap { archiveId =>
-				val k = (archiveId, all(archiveId))
-				val jj = mapper.readTree(k._2.utf8String)
-				val llkey = k._1 + "_" + uid
-				val lastPlayTime = tTime(llkey).toLong
-				val code = k._1.substring(0,CODE_COUNT) + "_" +  uid.substring(0,CODE_COUNT) + ranCount(llkey)
-				val newCode = codeCount(llkey)
+				if(all.contains(archiveId)) {
+					val k = (archiveId, all(archiveId))
+					val jj = mapper.readTree(k._2.utf8String)
+					val llkey = k._1 + "_" + uid
+					val lastPlayTime = tTime(llkey).toLong
+					val code = k._1.substring(0,CODE_COUNT) + "_" +  uid.substring(0,CODE_COUNT) + ranCount(llkey)
+					val newCode = codeCount(llkey)
 
-				if(lastPlayTime < lastDisplayTime) None  
-				else if(lastPlayTime < reportStartTime)
-				Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}"}"""))
-				else
-				Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}","status":${statuss(llkey)},"leave_msg_count":${msgCount(llkey)} }"""))
+					if(lastPlayTime < lastDisplayTime) None  
+					else if(lastPlayTime < reportStartTime)
+					Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}"}"""))
+					else if(statuss.contains(llkey) && statuss(llkey) == 5) None 
+					else
+					Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}","status":${statuss(llkey)},"leave_msg_count":${msgCount(llkey)} }"""))
+				} else None
 			}.toArray
 
 		}
@@ -692,30 +721,33 @@ object GiftApplication2 extends Controller {
 	}
 
 	def createNewProduct() { 
-		// List(REDIS_KEY_GIFT_LINE, REDIS_KEY_GIFT_MONEY, REDIS_KEY_GIFT_BAG).map { redisName =>
-		// 	redis.hgetall(redisName).map { ll => //Future[Map[String, R]]
-		// 		ll.foreach { k =>
-		// 			val jj = mapper.readTree(k._2.utf8String)
-		// 			val mm = 2 * jj.get("max_count").asInt
-		// 			val result = s"""{
-		// 				"id":"${jj.get("id").asText}",
-		// 				"type":"${jj.get("type").asText}",
-		// 				"name":"${jj.get("name").asText}",
-		// 				"max_count":${jj.get("max_count").asInt},
-		// 				"img":"${jj.get("img").asText}",
-		// 				"position":${jj.get("position").asInt},
-		// 				"ct":${jj.get("ct").asLong},
-		// 				"max_ncount":${mm}
-		// 			}"""
-		// 			redis.hset(redisName, k._1, result)
-		// 		}
-		// 	}
-		// }
+		List(REDIS_KEY_GIFT_LINE, REDIS_KEY_GIFT_MONEY, REDIS_KEY_GIFT_BAG).map { redisName =>
+			redis.hgetall(redisName).map { ll => //Future[Map[String, R]]
+				ll.foreach { k =>
+					val jj = mapper.readTree(k._2.utf8String)
+					val po = 50 * jj.get("max_count").asInt
+
+					val result = s"""{
+						"id":"${jj.get("id").asText}",
+						"type":"${jj.get("type").asText}",
+						"name":"${jj.get("name").asText}",
+						"max_count":${jj.get("max_count").asInt},
+						"img":"${jj.get("img").asText}",
+						"position":${jj.get("position").asInt},
+						"ct":${jj.get("ct").asLong},
+						"max_ncount":${jj.get("max_ncount").asInt},
+						"point":${po}
+					}"""
+					redis.hset(redisName, k._1, result)
+				}
+			}
+		}
 
 		redis.hgetall(REDIS_KEY_GIFT_SE).map { ll => //Future[Map[String, R]]
 			ll.foreach { k =>
 				val jj = mapper.readTree(k._2.utf8String)
-				val mm = 2 * jj.get("max_count").asInt
+				val po = 50 * jj.get("max_count").asInt
+
 				val result = s"""{
 					"id":"${jj.get("id").asText}",
 					"base_money":${jj.get("base_money").asInt},
@@ -725,7 +757,8 @@ object GiftApplication2 extends Controller {
 					"img":"${jj.get("img").asText}",
 					"position":${jj.get("position").asInt},
 					"ct":${jj.get("ct").asLong},
-					"max_ncount":${mm}
+					"max_ncount":${jj.get("max_ncount").asInt},
+					"point":${po}
 				}"""
 				redis.hset(REDIS_KEY_GIFT_SE, k._1, result)
 			}

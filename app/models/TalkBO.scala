@@ -40,6 +40,7 @@ object ChatDataSource {
   import scala.collection.mutable.MutableList
 
   val mapper = new ObjectMapper()
+  mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
 
   // save every user connection.  key is user id and value is output channel
   val connected = Map.empty[String, Concurrent.Channel[String]]
@@ -83,71 +84,71 @@ object ChatDataSource {
 }
 
 case class Notification @JsonCreator() (
-	@scala.reflect.BeanProperty @JsonProperty("womenCome") womenCome : Boolean, 
-	@scala.reflect.BeanProperty @JsonProperty("menCome") menCome : Boolean, 
-	@scala.reflect.BeanProperty @JsonProperty("womenNum") womenNum : Int, 
-	@scala.reflect.BeanProperty @JsonProperty("menNum") menNum : Int)
+	@scala.beans.BeanProperty @JsonProperty("womenCome") womenCome : Boolean, 
+	@scala.beans.BeanProperty @JsonProperty("menCome") menCome : Boolean, 
+	@scala.beans.BeanProperty @JsonProperty("womenNum") womenNum : Int, 
+	@scala.beans.BeanProperty @JsonProperty("menNum") menNum : Int)
 
 
 
 case class BeginTalk @JsonCreator() (
-	@scala.reflect.BeanProperty @JsonProperty("yourGuid") yourGuid : String, 
-	@scala.reflect.BeanProperty @JsonProperty("toGuid") toGuid : String, 
-	@scala.reflect.BeanProperty @JsonProperty("userInfo") userInfo : UserInfo)
+	@scala.beans.BeanProperty @JsonProperty("yourGuid") yourGuid : String, 
+	@scala.beans.BeanProperty @JsonProperty("toGuid") toGuid : String, 
+	@scala.beans.BeanProperty @JsonProperty("userInfo") userInfo : UserInfo)
 
-case class UserInfo @JsonCreator() (@scala.reflect.BeanProperty @JsonProperty("userId") userId : String,
-		@scala.reflect.BeanProperty @JsonProperty("nickname") nickname : String,
-		@scala.reflect.BeanProperty @JsonProperty("gender") gender : String,
-		@scala.reflect.BeanProperty @JsonProperty("findGender") findGender : String,
-		@scala.reflect.BeanProperty @JsonProperty("picId") picId : String,
-		@scala.reflect.BeanProperty @JsonProperty("location") location : String,
-		@scala.reflect.BeanProperty @JsonProperty("gps") gps : String,
-		@scala.reflect.BeanProperty @JsonProperty("guys") guys : Int
+case class UserInfo @JsonCreator() (@scala.beans.BeanProperty @JsonProperty("userId") userId : String,
+		@scala.beans.BeanProperty @JsonProperty("nickname") nickname : String,
+		@scala.beans.BeanProperty @JsonProperty("gender") gender : String,
+		@scala.beans.BeanProperty @JsonProperty("findGender") findGender : String,
+		@scala.beans.BeanProperty @JsonProperty("picId") picId : String,
+		@scala.beans.BeanProperty @JsonProperty("location") location : String,
+		@scala.beans.BeanProperty @JsonProperty("gps") gps : String,
+		@scala.beans.BeanProperty @JsonProperty("guys") guys : Int
 	)
 
-case class WaitNumber @JsonCreator() (@scala.reflect.BeanProperty @JsonProperty("yourNum") yourNum : Int, 
-	@scala.reflect.BeanProperty @JsonProperty("gid") gid : String,
-	@scala.reflect.BeanProperty @JsonProperty("fname") fname : String,
-	@scala.reflect.BeanProperty @JsonProperty("fpic") fpic : String
-	// @scala.reflect.BeanProperty @JsonProperty("canjump") canjump : Boolean
+case class WaitNumber @JsonCreator() (@scala.beans.BeanProperty @JsonProperty("yourNum") yourNum : Int, 
+	@scala.beans.BeanProperty @JsonProperty("gid") gid : String,
+	@scala.beans.BeanProperty @JsonProperty("fname") fname : String,
+	@scala.beans.BeanProperty @JsonProperty("fpic") fpic : String
+	// @scala.beans.BeanProperty @JsonProperty("canjump") canjump : Boolean
 	)
-case class UserId @JsonCreator() (@scala.reflect.BeanProperty @JsonProperty("yourId") yourId : String)
-case class PassInfo @JsonCreator() (@scala.reflect.BeanProperty @JsonProperty("yourNum") yourNum : Int, 
-	@scala.reflect.BeanProperty @JsonProperty("passNum") passNum : Int,
-	@scala.reflect.BeanProperty @JsonProperty("passCount") passCount : Int,
-	@scala.reflect.BeanProperty @JsonProperty("gid") gid : String
+case class UserId @JsonCreator() (@scala.beans.BeanProperty @JsonProperty("yourId") yourId : String)
+case class PassInfo @JsonCreator() (@scala.beans.BeanProperty @JsonProperty("yourNum") yourNum : Int, 
+	@scala.beans.BeanProperty @JsonProperty("passNum") passNum : Int,
+	@scala.beans.BeanProperty @JsonProperty("passCount") passCount : Int,
+	@scala.beans.BeanProperty @JsonProperty("gid") gid : String
 	)
 
-// case class GuyInfo @JsonCreator() (@scala.reflect.BeanProperty @JsonProperty("toId") toId : String,
-// 		@scala.reflect.BeanProperty @JsonProperty("nickname") nickname : String,
-// 		@scala.reflect.BeanProperty @JsonProperty("gender") gender : String,
-// 		@scala.reflect.BeanProperty @JsonProperty("picId") picId : String,
-// 		@scala.reflect.BeanProperty @JsonProperty("location") location : String,
-// 		@scala.reflect.BeanProperty @JsonProperty("gps") gps : String
+// case class GuyInfo @JsonCreator() (@scala.beans.BeanProperty @JsonProperty("toId") toId : String,
+// 		@scala.beans.BeanProperty @JsonProperty("nickname") nickname : String,
+// 		@scala.beans.BeanProperty @JsonProperty("gender") gender : String,
+// 		@scala.beans.BeanProperty @JsonProperty("picId") picId : String,
+// 		@scala.beans.BeanProperty @JsonProperty("location") location : String,
+// 		@scala.beans.BeanProperty @JsonProperty("gps") gps : String
 // 	)
 
 
-case class TalkMsg @JsonCreator() (@scala.reflect.BeanProperty @JsonProperty("fromId") fromId : String, 
-	@scala.reflect.BeanProperty @JsonProperty("toId") toId : String,
-	@scala.reflect.BeanProperty @JsonProperty("msg") msg : String,
-	@scala.reflect.BeanProperty @JsonProperty("ts") ts : Long,
-	@scala.reflect.BeanProperty @JsonProperty("fromGid") fromGid : String,
-	@scala.reflect.BeanProperty @JsonProperty("toGid") toGid : String
+case class TalkMsg @JsonCreator() (@scala.beans.BeanProperty @JsonProperty("fromId") fromId : String, 
+	@scala.beans.BeanProperty @JsonProperty("toId") toId : String,
+	@scala.beans.BeanProperty @JsonProperty("msg") msg : String,
+	@scala.beans.BeanProperty @JsonProperty("ts") ts : Long,
+	@scala.beans.BeanProperty @JsonProperty("fromGid") fromGid : String,
+	@scala.beans.BeanProperty @JsonProperty("toGid") toGid : String
 	)
 
 case class EndMsg @JsonCreator() (
-	@scala.reflect.BeanProperty @JsonProperty("fromId") fromId : String,
-	@scala.reflect.BeanProperty @JsonProperty("toId") toId : String,
-	@scala.reflect.BeanProperty @JsonProperty("msg") msg : String,
-	@scala.reflect.BeanProperty @JsonProperty("nickname") nickname : String, // your nickname
-	@scala.reflect.BeanProperty @JsonProperty("seeAgain") seeAgain : Int, // 0:see 1: not see
-	@scala.reflect.BeanProperty @JsonProperty("fromGid") fromGid : String,
-	@scala.reflect.BeanProperty @JsonProperty("toGid") toGid : String
+	@scala.beans.BeanProperty @JsonProperty("fromId") fromId : String,
+	@scala.beans.BeanProperty @JsonProperty("toId") toId : String,
+	@scala.beans.BeanProperty @JsonProperty("msg") msg : String,
+	@scala.beans.BeanProperty @JsonProperty("nickname") nickname : String, // your nickname
+	@scala.beans.BeanProperty @JsonProperty("seeAgain") seeAgain : Int, // 0:see 1: not see
+	@scala.beans.BeanProperty @JsonProperty("fromGid") fromGid : String,
+	@scala.beans.BeanProperty @JsonProperty("toGid") toGid : String
 
 	)
 
 case class LeaveMsg( nickname: String, msg : String)
-// case class EndMsg @JsonCreator() (@scala.reflect.BeanProperty @JsonProperty("toId") toId : String,
-// 	@scala.reflect.BeanProperty @JsonProperty("msg") msg : String,
-// 	@scala.reflect.BeanProperty @JsonProperty("nickname") nickname : String
+// case class EndMsg @JsonCreator() (@scala.beans.BeanProperty @JsonProperty("toId") toId : String,
+// 	@scala.beans.BeanProperty @JsonProperty("msg") msg : String,
+// 	@scala.beans.BeanProperty @JsonProperty("nickname") nickname : String
 // 	)

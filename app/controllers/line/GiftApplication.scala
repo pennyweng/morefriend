@@ -33,9 +33,11 @@ object GiftApplication extends Controller {
 	val redis = RedisClientPool(List(redis1))
 
 	val mapper = new ObjectMapper()
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+		
 	val NEXT_TIME = 3600000 * 1l
 	val NEXT_B_TIME = 3800000 * 1l	
-	val MAX_SHOW = 100
+	val MAX_SHOW = 400
 	val MAX_SHOW_MONEY = 100
 	val MAX_HIT_COUNT = 10
 	val CODE_COUNT = 3
@@ -70,6 +72,17 @@ object GiftApplication extends Controller {
 		val data = body.asText.getOrElse("")
 		val ff = mapper.readTree(data)
 		val id = java.util.UUID.randomUUID.toString
+		// val result = s"""{
+		// 	"id":"${id}",
+		// 	"type":"FR_LINE",
+		// 	"name":"${ff.get("name").asText}",
+		// 	"max_count":${ff.get("max_count").asInt},
+		// 	"img":"${ff.get("img").asText}",
+		// 	"position":${ff.get("position").asInt},
+		// 	"ct":${System.currentTimeMillis},
+		// 	"max_ncount":${2 * ff.get("max_count").asInt}
+		// }"""
+
 		val result = s"""{
 			"id":"${id}",
 			"type":"FR_LINE",
@@ -78,8 +91,10 @@ object GiftApplication extends Controller {
 			"img":"${ff.get("img").asText}",
 			"position":${ff.get("position").asInt},
 			"ct":${System.currentTimeMillis},
-			"max_ncount":${2 * ff.get("max_count").asInt}
+			"max_ncount":${ff.get("max_ncount").asInt},
+			"point":${ff.get("point").asInt}
 		}"""
+
 		redis.hset(REDIS_KEY_GIFT_LINE, id, result)
 
 		Ok(result)		
@@ -91,6 +106,18 @@ object GiftApplication extends Controller {
 		val data = body.asText.getOrElse("")
 		val ff = mapper.readTree(data)
 		val id = java.util.UUID.randomUUID.toString
+		
+		// val result = s"""{
+		// 	"id":"${id}",
+		// 	"type":"FR_MONY",			
+		// 	"name":"${ff.get("name").asText}",
+		// 	"max_count":${ff.get("max_count").asInt},
+		// 	"img":"${ff.get("img").asText}",
+		// 	"position":${ff.get("position").asInt},
+		// 	"ct":${System.currentTimeMillis},
+		// 	"max_ncount":${2 * ff.get("max_count").asInt}
+		// }"""
+
 		val result = s"""{
 			"id":"${id}",
 			"type":"FR_MONY",			
@@ -99,8 +126,10 @@ object GiftApplication extends Controller {
 			"img":"${ff.get("img").asText}",
 			"position":${ff.get("position").asInt},
 			"ct":${System.currentTimeMillis},
-			"max_ncount":${2 * ff.get("max_count").asInt}
-		}"""		
+			"max_ncount":${ff.get("max_ncount").asInt},
+			"point":${ff.get("point").asInt}
+		}"""
+
 		redis.hset(REDIS_KEY_GIFT_MONEY, id, result)
 
 		Ok(result)		
@@ -140,7 +169,7 @@ object GiftApplication extends Controller {
 					}
 				redis.hset(REDIS_KEY_GIFT_LINE_CHECK_TIME + lgid, uid, now)
 				redis.hset(REDIS_KEY_GIFT_LINE_PLAY_COUNT, lgid + "_" + uid, sd.toString)
-				val nextPlay = now + 3600000l * 3 + 60000l * new Random().nextInt(120)
+				val nextPlay = now + 3600000l * 1 + 60000l * new Random().nextInt(60)
 				redis.hset(REDIS_KEY_GIFT_LINE_NEW_CHECK_TIME, uid, nextPlay)
 
 				if(sd >= jj.get("max_ncount").asInt) {
@@ -156,6 +185,16 @@ object GiftApplication extends Controller {
 				}				
 			}
 		}
+	}
+
+	def updateWinner() {
+		val lgid = "134e7089-9c3b-4c0e-8547-b9c5b60c9248"
+		val uid = "073F6845E532FA21E1A964491D4CB2C83DCDED06"
+
+		val code = getCode(lgid, uid)
+		redis.hset(REDIS_KEY_GIFT_RANDOM_KEY, lgid + "_" + uid , code._1)
+		redis.hset(REDIS_KEY_GIFT_CODE_KEY, lgid + "_" + uid , code._2)
+		redis.sadd(REDIS_KEY_GIFT_LINE_ACHIVE+uid, lgid)
 	}
 
 	def playLine(lgid : String, uid : String, lid : String) = Action {
@@ -185,7 +224,7 @@ object GiftApplication extends Controller {
 				val sd = if(dd.isDefined) dd.get.utf8String.toInt + 1 else 1
 				redis.hset(REDIS_KEY_GIFT_MONEY_PLAY_COUNT, lgid + "_" + uid, sd.toString)
 				redis.hset(REDIS_KEY_GIFT_MONEY_CHECK_TIME + lgid, uid, now)
-				val nextPlay = now + 3600000l * 3 + 60000l * new Random().nextInt(120)
+				val nextPlay = now + 3600000l * 2 + 60000l * new Random().nextInt(120)
 				redis.hset(REDIS_KEY_GIFT_MONEY_NEW_CHECK_TIME, uid, nextPlay)
 
 				if(sd >= jj.get("max_ncount").asInt) {
@@ -281,7 +320,12 @@ object GiftApplication extends Controller {
 			kCount <- getLineCount(v1) // List[(String, String)]
 			all <- redis.hgetall(REDIS_KEY_GIFT_LINE) //Future[Map[String, R]]
 		} yield {
-			val ee2 = all.map { k =>
+			// val kCount = s2.toMap
+			
+			val ee2 = all.filter { k =>
+					val llkey = k._1 + "_" + uid
+					kCount.getOrElse(llkey, "-1").toInt == 0
+				}.map { k =>
 					val llkey = k._1 + "_" + uid
 					val jj = mapper.readTree(k._2.utf8String)
 					val maxCount = jj.get("max_count").asInt
@@ -371,7 +415,7 @@ object GiftApplication extends Controller {
 				val lastPlayTime = tTime(llkey).toLong
 				val code = k._1.substring(0,CODE_COUNT) + "_" +  uid.substring(0,CODE_COUNT) + ranCount(llkey)
 				val newCode = codeCount(llkey)
-				println("lastPlayTime:" + lastPlayTime + ",lastDisplayTime:" + lastDisplayTime)
+				Logger.info("lastPlayTime:" + lastPlayTime + ",lastDisplayTime:" + lastDisplayTime)
 				if(lastPlayTime < lastDisplayTime) None else 
 				Some((lastPlayTime, s"""{"ll":${k._2.utf8String},"cc":${kCount(llkey).toInt},"lt":${lastPlayTime},"code":"${code}", "new_code":"${newCode}"}"""))
 			}.toArray
@@ -742,6 +786,7 @@ object GiftApplication extends Controller {
 			scala.util.Sorting.quickSort(ee1)
 			scala.util.Sorting.quickSort(ee2)
 
+			Logger.info("ee1:" + ee1.size + ",ee2:" + ee2.size)
 			val ee = ee1 ++ ee2.reverse.take(MAX_SHOW - ee1.length)
 			// val ee = ee2.reverse.take(MAX_SHOW)
 			val ooo = ee.map { k => k._2 }.mkString("[",",","]")
@@ -767,20 +812,20 @@ object GiftApplication extends Controller {
 					(jj.get("ct").asLong, s"""{"ll":${k._2.utf8String},"cc":${currentCount}}""")
 				}.toArray
 
-			val ee2 = all.filter { k =>
-					val llkey = k._1 + "_" + uid
-					kCount.getOrElse(llkey, "-1").toInt == 0
-				}.map { k =>
-					val llkey = k._1 + "_" + uid
-					val jj = mapper.readTree(k._2.utf8String)
-					val currentCount = kCount.getOrElse(llkey, "0").toInt
-					(new java.util.Random().nextInt(100), s"""{"ll":${k._2.utf8String},"cc":${currentCount}}""")
-				}.toArray
+			// val ee2 = all.filter { k =>
+			// 		val llkey = k._1 + "_" + uid
+			// 		kCount.getOrElse(llkey, "-1").toInt == 0
+			// 	}.map { k =>
+			// 		val llkey = k._1 + "_" + uid
+			// 		val jj = mapper.readTree(k._2.utf8String)
+			// 		val currentCount = kCount.getOrElse(llkey, "0").toInt
+			// 		(new java.util.Random().nextInt(100), s"""{"ll":${k._2.utf8String},"cc":${currentCount}}""")
+			// 	}.toArray
 
 			scala.util.Sorting.quickSort(ee1)
-			scala.util.Sorting.quickSort(ee2)
+			// scala.util.Sorting.quickSort(ee2)
 
-			val ee = ee1 ++ ee2.reverse.take(MAX_SHOW_MONEY - ee1.length)
+			val ee = ee1// ++ ee2.reverse.take(MAX_SHOW_MONEY - ee1.length)
 			// val ee = ee2.take(MAX_SHOW_MONEY)
 			val ooo = ee.map { k => k._2 }.mkString("[",",","]")
 			Ok(ooo)	

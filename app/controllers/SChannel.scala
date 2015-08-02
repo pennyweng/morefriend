@@ -21,16 +21,18 @@ import com.fasterxml.jackson.annotation._
 
 
 case class MessageInfo @JsonCreator() (
-	@scala.reflect.BeanProperty @JsonProperty("msg") msg : String, 
-	@scala.reflect.BeanProperty @JsonProperty("ts") ts : Long,
-	@scala.reflect.BeanProperty @JsonProperty("uid") uid : String,
-	@scala.reflect.BeanProperty @JsonProperty("room") room : String,
-	@scala.reflect.BeanProperty @JsonProperty("img") img : String = ""
+	@scala.beans.BeanProperty @JsonProperty("msg") msg : String, 
+	@scala.beans.BeanProperty @JsonProperty("ts") ts : Long,
+	@scala.beans.BeanProperty @JsonProperty("uid") uid : String,
+	@scala.beans.BeanProperty @JsonProperty("room") room : String,
+	@scala.beans.BeanProperty @JsonProperty("img") img : String = ""
 	)
 
 
 object SChannel extends Controller {
 	val mapper = new ObjectMapper()
+	mapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+		
 	val leaveMsg = new HashMap[String, Array[MessageInfo]]()
 	val uploadPath = "./schannel"
 

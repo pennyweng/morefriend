@@ -1,4 +1,13 @@
 {
+    "name": "柯基犬椪椪愛亂動！",
+    "max_count": 50,
+    "img": "https://sdl-stickershop.line.naver.jp/products/0/0/1/4056/LINEStorePC/thumbnail_shop.png",
+    "position": 0,
+    "max_ncount":100,
+    "point":2500
+}
+
+{
     "name": "彎彎 (動次動次小劇場)",
     "max_count": 40,
     "img": "https://sdl-stickershop.line.naver.jp/products/0/0/1/3665/LINEStorePC/thumbnail_shop.png",

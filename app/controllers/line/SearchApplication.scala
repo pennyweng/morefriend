@@ -187,4 +187,37 @@ object SearchApplication extends Controller {
 			Ok(resp1)
 		}
 	}	
+
+
+	def search1(page: Int, s : String, uid : String) = Action.async {
+		Logger.info(s"search page:${page}")
+		updateOnline(uid)
+		updateActive(uid)
+		
+		// val start =  (0 - NUM_OF_PAGE) - (NUM_OF_PAGE * page)
+		// val end = -1 - (NUM_OF_PAGE * page)
+
+		val start =  (NUM_OF_PAGE * page)
+		val end = (NUM_OF_PAGE * (page + 1)) - 1
+		val redisKey =  if(s == "M") REDIS_KEY_ACCOUNT_MAN 
+			else if(s == "F") REDIS_KEY_ACCOUNT_WOMEN
+			else REDIS_KEY_ACCOUNT
+
+		Logger.debug("redisKey:" + redisKey+ ",start:" + start + ",end:" + end)
+		for {
+			no <- redis.hget(REDIS_KEY_NOTIFICATION, uid) // Future[Option[R]]
+			ut <- redis.zrevrange(redisKey, start, end) // //Future[Seq[R]]
+			h <- if(ut.length > 0) redis.hmget(REDIS_KEY_USER, ut.map{ u => u.utf8String}.toList : _*) else Future.successful(List(None))//Future[Seq[Option[R]]]
+		} yield {
+			val resp = h.flatten.map { ee =>
+				ee.utf8String
+			}.mkString("[", ",", "]")
+
+			val resp1 = if(uid != "") {
+					val nn = if(no.isDefined) s"""{"command":"GET_NOTIFICATION","ts":${no.get.utf8String}}"""  else null
+					s"""{"r":${resp},"n":${nn}}"""
+				} else resp
+			Ok(resp1)
+		}
+	}		
 }
